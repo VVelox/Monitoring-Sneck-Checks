@@ -1,0 +1,63 @@
+#!perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config require_order no_ignore_case bundling);
+use Pod::Usage;
+use Monitoring::Sneck::Checks;
+
+=head1 NAME
+
+sneck_check - runs a Monitoring::Sneck::Checks check from the shell
+
+=head1 SYNOPSIS
+
+sneck_check [B<-t> <seconds>] [B<-a>] <check> [<args>...]
+
+sneck_check B<-h>
+
+=head1 DESCRIPTION
+
+Runs a check the same as sneck does for perl:<check>, prints its
+output, and exits with its code, so it can also be used as a nagios
+plugin. A check that can not be loaded, -1 for sneck, exits 3.
+
+=head1 FLAGS
+
+=head2 -t <seconds>
+
+Seconds to give it.
+
+Default :: 30
+
+=head2 -a
+
+Print stdout and then stderr, labeled, instead of the two combined.
+
+=head2 -h
+
+Print this.
+
+=head1 EXAMPLES
+
+    sneck_check http -H www.example.org -S -w 1 -c 2
+    sneck_check -t 10 https_cert -H www.example.org -w 30 -c 14
+
+=cut
+
+my $timeout = 30;
+my $apart;
+my $help;
+GetOptions( 't=s' => \$timeout, 'a' => \$apart, 'h' => \$help ) or pod2usage( -exitval => 3, -verbose => 1 );
+pod2usage( -exitval => 0, -verbose => 2 ) if $help;
+my $check = shift(@ARGV);
+pod2usage( -exitval => 3, -verbose => 1 ) if !defined($check);
+
+my $return = Monitoring::Sneck::Checks->run( check => $check, args => [@ARGV], timeout => $timeout );
+if ($apart) {
+	print 'stdout:' . "\n" . $return->{stdout} . 'stderr:' . "\n" . $return->{stderr};
+} else {
+	print $return->{combined};
+}
+
+exit( $return->{code} == -1 ? 3 : $return->{code} );

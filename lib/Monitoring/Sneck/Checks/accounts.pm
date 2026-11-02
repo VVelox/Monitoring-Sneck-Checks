@@ -27,15 +27,15 @@ our $SHELLS        = '/etc/shells';
 =head1 SYNOPSIS
 
     !accounts|control=CIS-6.2 framework=CIS|perl:accounts -s
-    !no_guest|perl:accounts -a guest -a test -p backup
+    !no_guest||perl:accounts -a guest -a test -p backup
 
 =head1 DESCRIPTION
 
 Checks the local accounts, from the files, not through NSS, so those
 from LDAP and the like are not looked at. Each of these is CRITICAL.
 
-- a UID of 0 :: For any account other than root, and toor on FreeBSD,
-or those given by --uid0.
+- a UID of 0 :: For any account not given by --uid0, by default root,
+and toor on FreeBSD.
 
 - no password :: An account with a empty password field, which can log
 in without one. Locked accounts, * or !, are fine. This needs reading

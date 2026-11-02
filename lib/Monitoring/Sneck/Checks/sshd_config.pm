@@ -26,8 +26,8 @@ our $MAX_DEPTH = 16;
 =head1 SYNOPSIS
 
     !ssh_no_root|control=CIS-5.2.10 framework=CIS|perl:sshd_config -e PermitRootLogin=no
-    !ssh_auth|perl:sshd_config -e PasswordAuthentication=no -d PasswordAuthentication=yes -e 'MaxAuthTries=3|4'
-    !ssh_no_x11|perl:sshd_config -f /usr/local/etc/ssh/sshd_config -e X11Forwarding=no -d X11Forwarding=no
+    !ssh_auth||perl:sshd_config -e PasswordAuthentication=no -d PasswordAuthentication=yes -e 'MaxAuthTries=3|4'
+    !ssh_no_x11||perl:sshd_config -f /usr/local/etc/ssh/sshd_config -e X11Forwarding=no -d X11Forwarding=no
 
 =head1 DESCRIPTION
 
@@ -39,8 +39,8 @@ the file not being readable.
 The settings are read the way sshd does. Names are not case sensitive,
 and the first value wins. Only the global settings are looked at, so
 everything from the first Match on is left out. Values are compared
-without case and with runs of spaces squashed, so "Ciphers a,b" is
-"a,b".
+without case and with runs of spaces squashed, so extra spaces in the
+file do not matter.
 
 sshd's own defaults vary by version and OS, so they are not known. Give
 --default for any that may be unset, such as -d PermitRootLogin=prohibit-password.
@@ -52,7 +52,7 @@ Default :: /etc/ssh/sshd_config
 
 - -e, --expect :: "Name=value", a setting and the value it must have.
 Several values may be allowed, split by |, such as "MaxAuthTries=3|4".
-May be given more than once.
+May be given more than once. Required.
 
 - -d, --default :: "Name=value", what sshd uses if it is not set. May
 be given more than once.

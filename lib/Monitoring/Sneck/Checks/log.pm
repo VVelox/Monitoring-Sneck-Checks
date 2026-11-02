@@ -49,10 +49,10 @@ UNKNOWN.
 
 =head1 OPTIONS
 
-- -f, --file :: The log.
+- -f, --file :: The log. Required.
 
 - -r, --regex :: A regex for lines to count. May be given more than
-once, any matching is enough.
+once, any matching is enough. Required.
 
 - -x, --exclude :: A regex for lines not to count. May be given more
 than once.
@@ -65,7 +65,8 @@ Default :: 0
 - -H, --hold :: Seconds to keep reporting matches for.
 Default :: 0
 
-- -n, --lines :: How many matching lines to list after the status line.
+- -n, --lines :: How many matching lines to list after the status
+line, once it is not OK.
 Default :: 5
 
 - -s, --state :: The state file.

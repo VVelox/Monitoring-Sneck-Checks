@@ -26,12 +26,13 @@ our $VERSION = '0.0.1';
 
 Checks the percent used of each file system, and optionally of its
 inodes, through L<Filesys::Df>. Used is as df shows it, out of what
-users may use, so space kept for root counts as used. A path that can
+users may use, so space kept for root is left out of the total. A path that can
 not be looked at is CRITICAL.
 
 =head1 OPTIONS
 
 - -p, --path :: A path on the file system. May be given more than once.
+Required.
 
 - -w, --warning :: Range of percent used.
 Default :: 80

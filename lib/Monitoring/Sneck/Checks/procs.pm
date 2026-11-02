@@ -44,12 +44,13 @@ takes a while to show it.
 
 - -C, --command :: The process name, exactly.
 
-- -r, --regex :: A regex the whole command line must match.
+- -r, --regex :: A regex matched against the whole command line, so
+matching anywhere in it is enough.
 
 - -u, --user :: The user it runs as, by name or UID.
 
-- -s, --state :: Its state, such as Z for zombie, R for running, or S
-for sleeping.
+- -s, --state :: Its state, one of R, running, S, sleeping, D, waiting
+on IO, Z, zombie, T, stopped, or I, idle.
 
 - -w, --warning :: Range for the count.
 
@@ -65,10 +66,10 @@ Default :: 1:
 - --cpu-critical :: Range of percent CPU for each process.
 
 - --fd-warning :: Range of percent of its open file limit each process
-is using.
+is using. Linux only, as it reads /proc. UNKNOWN elsewhere.
 
 - --fd-critical :: Range of percent of its open file limit each process
-is using.
+is using. Linux only, the same as --fd-warning.
 
 =cut
 

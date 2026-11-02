@@ -50,6 +50,9 @@ something that must be there. May be given more than once.
 
 - -C, --value-critical :: Range for --value.
 
+One of --json or --value must be given. --value-warning and
+--value-critical need --value.
+
 =cut
 
 sub option_spec {

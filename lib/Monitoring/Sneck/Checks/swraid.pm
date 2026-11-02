@@ -36,7 +36,7 @@ Arrays given with --array must be there.
 
 On Linux, md arrays are read from /proc/mdstat. On FreeBSD,
 gmirror status -s and graid status -s are run, those classes not being
-loaded counting as having no arrays. Other OSes are UNKNOWN.
+loaded, or the commands not being there, counting as having no arrays. Other OSes are UNKNOWN.
 
 Having no arrays at all is OK, unless --array says one should be there.
 

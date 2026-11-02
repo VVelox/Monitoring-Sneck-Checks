@@ -29,14 +29,14 @@ intermediates checked too. A file that can not be read or has no
 certificates is CRITICAL, as is a expired one or one not good yet. Then
 it is WARNING or CRITICAL by the days left.
 
---key and --name are checked against the first certificate of the
-first file. A key that does not match is CRITICAL, as is one that is
+--key and --name are checked against the first certificate that
+parses, in the order the files are given. A key that does not match is CRITICAL, as is one that is
 encrypted, as there is no passphrase to give it. A key readable by
 everyone is WARNING.
 
 =head1 OPTIONS
 
-- -f, --file :: A PEM file. May be given more than once.
+- -f, --file :: A PEM file. May be given more than once. Required.
 
 - -k, --key :: The PEM private key for the first certificate.
 

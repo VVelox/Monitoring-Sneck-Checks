@@ -41,7 +41,7 @@ Each one that is not OK gets its own line after it.
 
 =head1 OPTIONS
 
-- -d, --dir :: A directory. May be given more than once.
+- -d, --dir :: A directory. May be given more than once. Required.
 
 - -r, --recursive :: Look in the directories under them too.
 

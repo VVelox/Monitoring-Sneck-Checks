@@ -31,9 +31,9 @@ our $MAX_NAMESERVERS = 3;
 
 =head1 DESCRIPTION
 
-Reads resolv.conf. Lines it does not understand, nameservers that are
-not IPs, bad search domains, no nameservers, or more than the C library
-uses, 3, are WARNING. Not being able to read it is CRITICAL.
+Reads resolv.conf. Lines it does not understand, keywords with nothing after them,
+nameservers that are not IPs, bad domain or search domains, no
+nameservers, or more than the C library uses, 3, are WARNING. Not being able to read it is CRITICAL.
 
 With --query, each nameserver is asked for it through L<Net::DNS>. Any
 answer counts, NXDOMAIN included, as the server answered. None

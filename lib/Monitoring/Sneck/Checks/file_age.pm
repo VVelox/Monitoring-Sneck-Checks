@@ -54,6 +54,8 @@ Default :: 600
 
 - -i, --ignore-missing :: A missing file is OK.
 
+One of --file or --newest must be given.
+
 =cut
 
 sub option_spec {

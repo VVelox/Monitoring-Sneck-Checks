@@ -34,8 +34,9 @@ saying so.
 On Linux, it is nf_conntrack_count against nf_conntrack_max, under
 /proc/sys/net/netfilter. If conntrack is not loaded there is no table,
 which is OK. On FreeBSD, it is pf's states, from pfctl -si and the
-states limit from pfctl -sm, which needs root. pf not being enabled is
-OK. Other OSes are UNKNOWN.
+states limit from pfctl -sm, which needs root. pf being loaded but
+disabled is OK. pfctl failing, such as pf not being in the kernel, is
+UNKNOWN, as are other OSes.
 
 =head1 OPTIONS
 

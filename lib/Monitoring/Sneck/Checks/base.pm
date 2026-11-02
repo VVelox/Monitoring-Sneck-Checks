@@ -954,14 +954,8 @@ sub write_state {
 	if ( !-d $dir && !mkdir( $dir, 0700 ) ) {
 		return 'can not make ' . $dir . ', ' . $!;
 	}
-	my $temporary = $file . '.' . $$;
-	if ( !write_file( $temporary, { err_mode => 'quiet', atomic => 0 }, JSON->new->canonical->encode($state) ) ) {
-		return 'can not write ' . $temporary . ', ' . $!;
-	}
-	if ( !rename( $temporary, $file ) ) {
-		my $why = $!;
-		unlink($temporary);
-		return 'can not write ' . $file . ', ' . $why;
+	if ( !write_file( $file, { err_mode => 'quiet', atomic => 1 }, JSON->new->canonical->encode($state) ) ) {
+		return 'can not write ' . $file . ', ' . $!;
 	}
 
 	return undef;

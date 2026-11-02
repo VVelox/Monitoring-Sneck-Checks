@@ -31,7 +31,7 @@ our $RELEASE;
 =head1 SYNOPSIS
 
     !no_cramfs|control=CIS-1.1.1.1 framework=CIS|perl:kernel_modules -n cramfs
-    !no_usb_storage|perl:kernel_modules -a usb_storage -a firewire_core
+    !no_usb_storage||perl:kernel_modules -a usb_storage -a firewire_core
     zfs_loaded|perl:kernel_modules -p zfs
 
 =head1 DESCRIPTION
@@ -44,9 +44,9 @@ them.
 must not be loaded, and must also have a "install name /bin/false" or
 "/bin/true" line in modprobe.d, so modprobe can not load it either.
 
-On Linux, loaded modules are read from /proc/modules, and built in
-ones from modules.builtin count as loaded for --present, and as not
-able to be kept out for the others. On FreeBSD, kldstat -q -m is asked
+On Linux, loaded modules are read from /proc/modules. Built in ones,
+from modules.builtin, count as loaded for --present and fail --absent
+and --not-loadable, as they can not be kept out. On FreeBSD, kldstat -q -m is asked
 about each, and --not-loadable is not supported. Other OSes are
 UNKNOWN.
 
@@ -60,6 +60,8 @@ than once.
 
 - -n, --not-loadable :: A module that must not be loaded or loadable.
 May be given more than once.
+
+One or more of --present, --absent, or --not-loadable must be given.
 
 =cut
 

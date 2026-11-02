@@ -38,7 +38,7 @@ Default :: /etc/hosts
 - -e, --expect :: "name=address", a name that must map to that
 address. May be given more than once.
 
-- --no-localhost :: Do not want localhost in it.
+- --no-localhost :: Do not require localhost to be in it.
 
 =cut
 

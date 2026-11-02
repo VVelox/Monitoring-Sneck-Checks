@@ -36,7 +36,7 @@ name, which Linux cuts to 15 characters.
 
 =head1 OPTIONS
 
-- -f, --file :: The PID file.
+- -f, --file :: The PID file. Required.
 
 - -n, --name :: The name the process must have.
 

@@ -40,14 +40,15 @@ it expires.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The host.
+- -H, --hostname :: The host. Required.
 
 - -p, --port :: The port.
 Default :: 25, or 465 with --ssl
 
-- -S, --ssl :: Connect over TLS.
+- -S, --ssl :: Connect over TLS. Can not be used with --starttls.
 
-- -s, --starttls :: STARTTLS must be offered, and is done.
+- -s, --starttls :: STARTTLS must be offered, and is done. Can not be
+used with --ssl.
 
 - -e, --expect :: Text the greeting must have.
 

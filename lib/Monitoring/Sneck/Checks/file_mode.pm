@@ -20,8 +20,8 @@ our $VERSION = '0.0.1';
 =head1 SYNOPSIS
 
     !shadow_mode|control=CIS-6.1.3 framework=CIS|perl:file_mode -f /etc/shadow -M 0640 -o root
-    !ssh_keys|perl:file_mode -f /etc/ssh/ssh_host_ed25519_key -f /etc/ssh/ssh_host_rsa_key -m 0600 -o root -g 0
-    !tmp_sticky|perl:file_mode -f /tmp -m 1777
+    !ssh_keys||perl:file_mode -f /etc/ssh/ssh_host_ed25519_key -f /etc/ssh/ssh_host_rsa_key -m 0600 -o root -g 0
+    !tmp_sticky||perl:file_mode -f /tmp -m 1777
 
 =head1 DESCRIPTION
 
@@ -33,7 +33,7 @@ so 0640 allows 0600 and 0400 but not 0644.
 
 =head1 OPTIONS
 
-- -f, --file :: A file. May be given more than once.
+- -f, --file :: A file. May be given more than once. Required.
 
 - -m, --mode :: The mode it must have, in octal, such as 0600.
 
@@ -44,6 +44,8 @@ so 0640 allows 0600 and 0400 but not 0644.
 - -g, --group :: The group that must own it, by name or GID.
 
 - -i, --ignore-missing :: Files not there are OK.
+
+One or more of --mode, --max-mode, --owner, or --group must be given.
 
 =cut
 

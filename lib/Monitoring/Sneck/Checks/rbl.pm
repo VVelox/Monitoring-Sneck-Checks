@@ -30,14 +30,15 @@ looked up for its A and AAAA records first.
 
 A listing is a A record for it. The number of listings is checked
 against the ranges, so by default any is CRITICAL. A lookup that gets
-no reply is UNKNOWN, unless the listings are worse.
+no usable reply, such as none at all or SERVFAIL, is UNKNOWN, unless
+the listings are worse.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The IP or host.
+- -H, --hostname :: The IP or host. Required.
 
 - -s, --rbl :: A block list zone, such as zen.spamhaus.org. May be given
-more than once.
+more than once. Required.
 
 - --server :: A DNS server to ask. May be given more than once. The
 system's if not given.

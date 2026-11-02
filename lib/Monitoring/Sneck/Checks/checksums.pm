@@ -23,8 +23,8 @@ our %BY_LENGTH = ( 32 => 'md5', 40 => 'sha1', 56 => 'sha224', 64 => 'sha256', 96
 
 =head1 SYNOPSIS
 
-    !setuid_sums|perl:checksums -l /usr/local/etc/sneck/setuid.sha256
-    !sshd_sum|perl:checksums -F /usr/sbin/sshd=0d5b...e1a7
+    !setuid_sums||perl:checksums -l /usr/local/etc/sneck/setuid.sha256
+    !sshd_sum||perl:checksums -F /usr/sbin/sshd=5ea6737a5debfd2195a09cb910d8c0e8d6fa3dda458b6de2ac400a17febd276a
 
 To make a list, on Linux or FreeBSD.
 
@@ -54,6 +54,8 @@ L<Monitoring::Sneck::Checks::file_mode>.
 
 - -F, --file :: "path=hash", a file and its hash. May be given more
 than once.
+
+One of --list or --file must be given.
 
 =cut
 

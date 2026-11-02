@@ -35,7 +35,7 @@ yet, or CRITICAL with --critical.
 
 =head1 OPTIONS
 
-- -z, --zone :: The zone.
+- -z, --zone :: The zone. Required.
 
 - -s, --server :: A server to ask for the NS records and the addresses
 of the nameservers. May be given more than once. The system's if not
@@ -44,9 +44,10 @@ given.
 - -n, --nameserver :: A nameserver to check, a IP or name, in place of
 looking up the NS records. May be given more than once.
 
-- -4, --ipv4 :: Only check IPv4 addresses.
+- -4, --ipv4 :: Only check the IPv4 addresses of nameservers found by
+name. A IP given to --nameserver is checked either way.
 
-- -6, --ipv6 :: Only check IPv6 addresses.
+- -6, --ipv6 :: The same for IPv6.
 
 - -c, --critical :: Serials that differ are CRITICAL.
 

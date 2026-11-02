@@ -37,11 +37,12 @@ OSes, or Linux without systemd, are UNKNOWN.
 
 =head1 OPTIONS
 
-- -s, --service :: A service. May be given more than once.
+- -s, --service :: A service. May be given more than once. Required.
 
 - -e, --enabled :: They must also be enabled.
 
-- -j, --jail :: On FreeBSD, check the services in this jail.
+- -j, --jail :: On FreeBSD, check the services in this jail. UNKNOWN on
+other OSes.
 
 =cut
 

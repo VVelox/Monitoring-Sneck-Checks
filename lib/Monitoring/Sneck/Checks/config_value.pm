@@ -21,9 +21,9 @@ our $VERSION = '0.0.1';
 =head1 SYNOPSIS
 
     !pass_max_days|control=CIS-5.5.1.1 framework=CIS|perl:config_value -f /etc/login.defs -e 'PASS_MAX_DAYS<=365' -e 'PASS_MIN_DAYS>=1'
-    !no_forwarding|perl:config_value -f /etc/sysctl.conf -S = -e net.ipv4.ip_forward=0 -d net.ipv4.ip_forward=0
-    !sendmail_off|perl:config_value -f /etc/rc.conf -S = -e sendmail_enable=NO|NONE
-    !umask|perl:config_value -f /etc/login.defs -e UMASK=027|077
+    !no_forwarding||perl:config_value -f /etc/sysctl.conf -S = -e net.ipv4.ip_forward=0 -d net.ipv4.ip_forward=0
+    !sendmail_off||perl:config_value -f /etc/rc.conf -S = -e sendmail_enable=NO|NONE
+    !umask||perl:config_value -f /etc/login.defs -e UMASK=027|077
 
 =head1 DESCRIPTION
 
@@ -44,10 +44,10 @@ is given. Names and values are compared without case, unless
 
 =head1 OPTIONS
 
-- -f, --file :: The file.
+- -f, --file :: The file. Required.
 
 - -e, --expect :: "name=value", or with !=, <, <=, >, or >=. May be
-given more than once.
+given more than once. Required.
 
 - -d, --default :: "name=value", what is used if it is not set. May be
 given more than once.

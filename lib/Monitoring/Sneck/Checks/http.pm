@@ -37,9 +37,10 @@ L<Monitoring::Sneck::Checks::https_cert> for when they expire.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The host. Needed unless --url is a whole URL.
+- -H, --hostname :: The host. Required unless --url is a whole URL.
 
-- -u, --url :: The path, or a whole URL.
+- -u, --url :: The path, or a whole URL, in which case --hostname,
+--port, and --ssl are ignored.
 Default :: /
 
 - -p, --port :: The port.

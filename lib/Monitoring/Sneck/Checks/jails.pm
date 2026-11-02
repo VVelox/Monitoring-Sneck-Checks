@@ -52,6 +52,8 @@ given more than once.
 - -v, --vm :: A vm-bhyve VM that must be running. May be given more
 than once.
 
+One or more of --jail, --all-configured, or --vm must be given.
+
 =cut
 
 sub option_spec { return ( 'jail|j=s@', 'all-configured|a', 'exclude|x=s@', 'vm|v=s@' ) }

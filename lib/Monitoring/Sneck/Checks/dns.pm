@@ -32,7 +32,7 @@ or no records of the type is CRITICAL, as is a expected answer missing.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The name to look up.
+- -H, --hostname :: The name to look up. Required.
 
 - -q, --type :: The record type.
 Default :: A

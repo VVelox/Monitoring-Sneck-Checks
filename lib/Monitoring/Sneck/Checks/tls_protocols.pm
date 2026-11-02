@@ -37,19 +37,20 @@ our %SAID = map { $_->[0] => $_->[1] } @VERSIONS;
 
 Tries each TLS version given on its own, through L<IO::Socket::SSL>. A
 version in --refuse that the server takes, or one in --accept that it
-does not, is CRITICAL, as is it taking none of those tried.
+does not, is CRITICAL.
 
-Old versions are tried with OpenSSL's security level set to 0, as
-otherwise this side would refuse them, not the server. A version this
+Every version is tried with OpenSSL's security level set to 0, as
+otherwise this side would refuse the old ones, not the server. A version this
 host's OpenSSL can not do at all, as is common for SSLv3, is UNKNOWN,
-as it can not be told if the server takes it.
+as it can not be told if the server takes it. So is not being able
+to connect, or STARTTLS failing, as nothing could be tried.
 
 The certificate is not checked, see L<Monitoring::Sneck::Checks::https_cert>
 for that. --starttls works the same as there.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The host.
+- -H, --hostname :: The host. Required.
 
 - -p, --port :: The port.
 Default :: 443, or for --starttls, the protocol's
@@ -61,7 +62,7 @@ Default :: --hostname
 
 - -r, --refuse :: A version it must not take, SSLv3, TLSv1, TLSv1_1,
 TLSv1_2, or TLSv1_3. May be given more than once.
-Default :: TLSv1 and TLSv1_1
+Default :: TLSv1 and TLSv1_1, unless --accept is given
 
 - -a, --accept :: A version it must take. May be given more than once.
 

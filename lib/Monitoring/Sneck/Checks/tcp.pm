@@ -35,9 +35,9 @@ connect, or not getting what is expected, is CRITICAL.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The host.
+- -H, --hostname :: The host. Required.
 
-- -p, --port :: The port.
+- -p, --port :: The port. Required.
 
 - -S, --ssl :: Connect over TLS.
 

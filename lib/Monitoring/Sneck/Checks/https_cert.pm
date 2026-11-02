@@ -45,7 +45,7 @@ STARTTLS in the EHLO reply. Not being able to is CRITICAL.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The host to connect to.
+- -H, --hostname :: The host to connect to. Required.
 
 - -p, --port :: The port.
 Default :: 443, or for --starttls, the protocol's

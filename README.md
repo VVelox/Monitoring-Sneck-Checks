@@ -70,8 +70,10 @@ sneck_check http -H www.example.org -S -w 1 -c 2
 - tls_protocols :: What TLS versions a server takes, such as it refusing TLS 1.0 and 1.1, STARTTLS included.
 - uptime :: How long the host has been up, catching reboots no one planned.
 
-Those that look at the host, such as disk, interface, listening, and sysctl, work on Linux
-and FreeBSD.
+Those that look at the host, such as disk, interface, listening, and
+sysctl, work on Linux and FreeBSD, except neighbors, oom, pressure,
+and systemd_failed, which are Linux only, debsecan, which is Debian
+only, and jails and pkg_audit, which are FreeBSD only.
 
 Each check's POD lists its options, such as `perldoc
 Monitoring::Sneck::Checks::http`.
@@ -79,8 +81,8 @@ Monitoring::Sneck::Checks::http`.
 ## Return Codes
 
 Codes are the nagios ones, 0 to 3, except for -1, which means the check
-could not be loaded. That is what a bad name, `base`, or a module that
-is not there gets. Bad args, timing out, and the check dying are
+could not be loaded. That is what a bad name, `base`, a module that is
+not there, or one that is not a `Monitoring::Sneck::Checks::base` gets. Bad args, timing out, and the check dying are
 UNKNOWN.
 
 ## Writing Checks
@@ -106,7 +108,7 @@ make install
 ```
 pkg install p5-libwww p5-LWP-Protocol-https p5-HTTP-Message p5-Net-DNS p5-Net-IP \
     p5-Data-Validate-Domain p5-Data-Validate-IP p5-File-Slurp p5-XML-LibXML \
-    p5-IO-Socket-SSL p5-Net-SSLeay p5-IO-Socket-IP p5-JSON p5-Filesys-Df \
+    p5-IO-Socket-SSL p5-Net-SSLeay p5-IO-Socket-IP p5-JSON p5-JSON-XS p5-Filesys-Df \
     p5-Proc-ProcessTable p5-BSD-Sysctl
 ```
 
@@ -117,7 +119,7 @@ Then install from source as above.
 ```
 apt-get install libwww-perl liblwp-protocol-https-perl libhttp-message-perl libnet-dns-perl \
     libnet-ip-perl libdata-validate-domain-perl libdata-validate-ip-perl libfile-slurp-perl \
-    libxml-libxml-perl libio-socket-ssl-perl libnet-ssleay-perl libjson-perl libfilesys-df-perl \
+    libxml-libxml-perl libio-socket-ssl-perl libnet-ssleay-perl libjson-perl libjson-xs-perl libfilesys-df-perl \
     libproc-processtable-perl
 ```
 

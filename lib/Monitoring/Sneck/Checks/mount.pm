@@ -36,11 +36,11 @@ our %NOT_MOUNTED_TYPES = map { $_ => 1 } ( 'swap', 'ignore' );
 Checks every file system in fstab is mounted, and that those not set
 ro there are not mounted read only, as one going read only after
 errors often goes unnoticed. Either is CRITICAL. Paths given with
---path must be mounted too.
+--path must be mounted too, but are not checked for being read only.
 
-Swap, and entries that are noauto or x-systemd.automount, are not
-expected to be mounted, though they are checked for being read only
-if they are.
+Swap is left alone. Entries that are noauto or x-systemd.automount are
+not expected to be mounted, though they are checked for being read
+only if they are.
 
 Mounts are read from /proc/mounts on Linux and mount -p on FreeBSD.
 Other OSes are UNKNOWN, as is fstab not being readable unless
@@ -54,7 +54,7 @@ than once.
 - -i, --ignore :: A mount point in fstab to leave alone. May be given
 more than once.
 
-- -n, --no-fstab :: Only check --path.
+- -n, --no-fstab :: Only check --path, which must then be given.
 
 =cut
 

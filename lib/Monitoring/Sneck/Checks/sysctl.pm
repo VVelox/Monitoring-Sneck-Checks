@@ -20,9 +20,9 @@ our $VERSION = '0.0.1';
 =head1 SYNOPSIS
 
     !aslr|control=CIS-1.5.3 framework=CIS|perl:sysctl -e kernel.randomize_va_space=2
-    !no_forwarding|perl:sysctl -e net.ipv4.ip_forward=0 -e net.ipv6.conf.all.forwarding=0
-    !securelevel|perl:sysctl -e 'kern.securelevel>=1'
-    !ptrace|perl:sysctl -e 'kernel.yama.ptrace_scope=1|2|3' -m
+    !no_forwarding||perl:sysctl -e net.ipv4.ip_forward=0 -e net.ipv6.conf.all.forwarding=0
+    !securelevel||perl:sysctl -e 'kern.securelevel>=1'
+    !ptrace||perl:sysctl -e 'kernel.yama.ptrace_scope=1|2|3' -m
 
 =head1 DESCRIPTION
 
@@ -43,7 +43,7 @@ through L<BSD::Sysctl>. Other OSes are UNKNOWN.
 =head1 OPTIONS
 
 - -e, --expect :: "name=value", or with !=, <, <=, >, or >=. May be
-given more than once.
+given more than once. Required.
 
 - -m, --missing-ok :: Sysctls that are not there are OK, as for those
 from a module that is not loaded.
@@ -103,7 +103,8 @@ sub check {
 =head2 value
 
 Returns the value of a sysctl with runs of space squashed, or undef if
-it is not there.
+it is not there, or on FreeBSD is a struct BSD::Sysctl can not give as
+text.
 
 =cut
 

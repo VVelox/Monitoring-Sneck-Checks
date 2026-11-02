@@ -25,7 +25,7 @@ our $SOCKSTAT = '/usr/bin/sockstat';
 
     ssh_listening|perl:listening -p 22
     web_listening|perl:listening -p tcp/80 -p tcp/443 -p udp/443
-    !only_expected|perl:listening -p 22 -p 25 -p udp/123 -o -L
+    !only_expected||perl:listening -p 22 -p 25 -p udp/123 -o -L
 
 =head1 DESCRIPTION
 
@@ -56,6 +56,8 @@ loopback addresses.
 
 - -i, --ignore :: For --only, a port that may be listened on, given
 the same way as --port. May be given more than once.
+
+One of --port or --only must be given.
 
 =cut
 

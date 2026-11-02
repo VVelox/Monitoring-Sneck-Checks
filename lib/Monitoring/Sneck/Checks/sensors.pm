@@ -34,10 +34,12 @@ our %TYPES = ( temp => [ 1000, 'C' ], fan => [ 1, 'RPM' ], in => [ 1000, 'V' ] )
 
 On Linux, reads every temperature, fan, and voltage from
 /sys/class/hwmon, so lm-sensors is not needed, and checks each against
-the limits its chip gives, as well as its alarm and fault flags.
+the limits its chip gives, as well as its alarm and fault flags. With
+--warning or --critical, temperatures are checked against those alone,
+their alarm flags left out.
 
 - temperatures :: At or over crit, or a crit alarm, is CRITICAL. At or
-over max, or a max alarm, is WARNING.
+over max, or a max or plain alarm, is WARNING.
 
 - fans :: Under min, or a alarm, is CRITICAL, as a fan that stopped is
 one.
@@ -54,9 +56,9 @@ with coretemp's tjmax as crit, and the ACPI thermal zones, with _CRT as
 crit and _HOT as max, through L<BSD::Sysctl>. Other OSes are UNKNOWN,
 as is finding no sensors.
 
-Each sensor is named by its chip and its label, such as
-"coretemp Core 0", or its file, such as "nct6775 fan2". Every one goes
-into the perfdata.
+On Linux each sensor is named by its chip and its label, such as
+"coretemp Core 0", or its file, such as "nct6775 fan2". On FreeBSD they
+are cpuN and tzN. Every one with a reading goes into the perfdata.
 
 =head1 OPTIONS
 
@@ -168,9 +170,9 @@ sub wanted {
 
 Works out the status of a sensor, as said under L</DESCRIPTION>.
 
-- sensor :: Hash ref of name, type, temp, fan, or in, value, min, max,
-crit, any undef if not known, and alarm, max_alarm, min_alarm,
-crit_alarm, and fault, each 1 if set.
+- sensor :: Hash ref of name, type, one of temp, fan, or in, value,
+min, max, crit, any undef if not known, and alarm, max_alarm,
+min_alarm, crit_alarm, and fault, each 1 if set.
 
 Returns the code and why, or undef for why if OK.
 

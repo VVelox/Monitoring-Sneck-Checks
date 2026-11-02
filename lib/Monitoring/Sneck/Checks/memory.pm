@@ -26,7 +26,8 @@ our $VERSION = '0.0.1';
 
 Checks the percent of memory used, which is what is not available to
 start new programs with. On Linux that is MemAvailable from
-/proc/meminfo. On FreeBSD it is the free and inactive pages, through
+/proc/meminfo, or MemFree, Buffers, and Cached added up on kernels
+without it. On FreeBSD it is the free and inactive pages, through
 L<BSD::Sysctl>. Other OSes are UNKNOWN.
 
 The ZFS ARC counts as used on both, as the kernel does not count it as

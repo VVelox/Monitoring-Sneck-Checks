@@ -68,19 +68,24 @@ Default :: VERSION_CODENAME from /etc/os-release, else what debsecan picks
 
 - -a, --all :: Count vulnerabilities with no fix yet too.
 
-- -f, -F :: The WARNING and CRITICAL limits for fixed.
+- -f, --fixed-warning and -F, --fixed-critical :: The WARNING and
+CRITICAL limits for fixed.
 Default :: 20, 30
 
-- -o, -O :: The same for obsolete.
+- -o, --obsolete-warning and -O, --obsolete-critical :: The same for
+obsolete.
 Default :: 1, 1
 
-- -u, -U :: The same for high urgency.
+- -u, --high-warning and -U, --high-critical :: The same for high
+urgency.
 Default :: 1, 1
 
-- -m, -M :: The same for medium urgency.
+- -m, --medium-warning and -M, --medium-critical :: The same for
+medium urgency.
 Default :: 5, 10
 
-- -l, -L :: The same for low urgency.
+- -l, --low-warning and -L, --low-critical :: The same for low
+urgency.
 Default :: 10, 20
 
 - -n, --lines :: How many of what it found to list after the status

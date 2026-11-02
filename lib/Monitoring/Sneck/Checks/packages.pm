@@ -25,8 +25,8 @@ our $PKG         = '/usr/sbin/pkg';
 =head1 SYNOPSIS
 
     !no_telnet|control=CIS-2.3.4 framework=CIS|perl:packages -a telnet -a rsh-client
-    !auditd|perl:packages -i auditd -i audispd-plugins
-    !www_no_compilers|perl:packages -j www -a gcc13 -a llvm18
+    !auditd||perl:packages -i auditd -i audispd-plugins
+    !www_no_compilers||perl:packages -j www -a gcc13 -a llvm18
 
 =head1 DESCRIPTION
 
@@ -46,7 +46,10 @@ more than once.
 - -a, --absent :: A package that must not be installed. May be given
 more than once.
 
-- -j, --jail :: On FreeBSD, check the packages in this jail.
+- -j, --jail :: On FreeBSD, check the packages in this jail. UNKNOWN on
+other OSes.
+
+One or more of --installed or --absent must be given.
 
 =cut
 

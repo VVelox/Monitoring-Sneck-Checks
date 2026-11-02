@@ -39,7 +39,7 @@ are CRITICAL. A reply that is not for what was sent is UNKNOWN.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The NTP server.
+- -H, --hostname :: The NTP server. Required.
 
 - -p, --port :: The port.
 Default :: 123

@@ -32,7 +32,7 @@ Each ping gets the timeout split between the packets.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The host.
+- -H, --hostname :: The host. Required.
 
 - -p, --packets :: How many to send.
 Default :: 5
@@ -41,7 +41,7 @@ Default :: 5
 Default :: icmp
 
 - --port :: The port for tcp or udp.
-Default :: 7, echo
+Default :: Net::Ping's, 7 for echo
 
 - -w, --warning :: "ms,loss%", the round trip average and packet loss
 at which it is WARNING.

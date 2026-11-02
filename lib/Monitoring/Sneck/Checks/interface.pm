@@ -51,7 +51,8 @@ ifconfig -l ether. Other OSes are UNKNOWN.
 
 - -i, --interface :: A interface. May be given more than once.
 
-- -a, --all :: All interfaces backed by hardware.
+- -a, --all :: Every interface backed by a device on Linux, or every
+Ethernet one, as listed by ifconfig -l ether, on FreeBSD.
 
 - -x, --ignore :: A interface for --all to leave out, such as a unused
 port. May be given more than once.
@@ -69,6 +70,8 @@ port. May be given more than once.
 - -r, --drops-warning :: Range of drops per second.
 
 - -R, --drops-critical :: Range of drops per second.
+
+One of --interface or --all must be given.
 
 =cut
 
@@ -228,7 +231,7 @@ sub rates {
 
 =head2 all
 
-Returns the interfaces backed by hardware.
+Returns the interfaces --all covers, see DESCRIPTION.
 
 =cut
 

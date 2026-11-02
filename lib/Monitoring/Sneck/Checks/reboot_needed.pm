@@ -53,16 +53,17 @@ linux-image package for the running kernel is not the one running, as
 for a update that kept the same ABI, and so the same release.
 
 On FreeBSD, it is freebsd-version -k, the installed kernel, not being
-freebsd-version -r, the one running.
+freebsd-version -r, the one running. Other OSes are UNKNOWN.
 
 With --libraries, on Linux, processes using libraries that were since
 replaced are listed as well, as they need restarting to use the new
 ones, the same as needrestart finds. This reads /proc/*/maps, so needs
-root to see every process. Other OSes are UNKNOWN.
+root to see every process. On FreeBSD it does nothing.
 
 =head1 OPTIONS
 
-- -l, --libraries :: Also list processes using replaced libraries.
+- -l, --libraries :: Also list processes using replaced libraries. Linux
+only.
 
 - -n, --lines :: How many processes using replaced libraries to list.
 Default :: 20
@@ -117,8 +118,8 @@ sub release {
 =head2 linux_reasons
 
 Returns the reasons Linux needs a reboot, as said under
-L</DESCRIPTION>, adding the lines of reboot-required.pkgs to the array
-ref given.
+L</DESCRIPTION>, adding a line listing the packages in
+reboot-required.pkgs to the array ref given.
 
 =cut
 
@@ -264,7 +265,7 @@ sub _version_cmp {
 	return 0;
 } ## end sub _version_cmp
 
-# Returns the list given, each only once, in order.
+# Returns the list given, each only once, in order, leaving out empty strings.
 #
 # Args...
 #

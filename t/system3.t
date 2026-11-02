@@ -14,6 +14,7 @@ use Monitoring::Sneck::Checks::jails;
 use Monitoring::Sneck::Checks::swap;
 
 my $dir   = TestTmp::dir();
+my $data  = $FindBin::Bin . '/data';
 my $write = sub {
 	my ( $name, $content ) = @_;
 	my $path = $dir . '/' . $name;
@@ -21,12 +22,6 @@ my $write = sub {
 	open( my $fh, '>', $path ) or die($!);
 	print $fh $content;
 	close($fh);
-	return $path;
-};
-my $stand_in = sub {
-	my ( $name, $code ) = @_;
-	my $path = $write->( $name, '#!' . $^X . "\n" . $code );
-	chmod( 0755, $path );
 	return $path;
 };
 local $Monitoring::Sneck::Checks::base::OS        = 'linux';
@@ -127,9 +122,7 @@ like( $run->( 'swap', '-W', 10 )->{stdout},
 like( $run->('swap')->{stdout}, qr/\ASWAP OK - 0.0% used, 0 of 2048 MiB \|/, 'no rate without the options' );
 {
 	local $Monitoring::Sneck::Checks::base::OS       = 'freebsd';
-	local $Monitoring::Sneck::Checks::swap::SWAPINFO = $stand_in->(
-		'swapinfo', "print qq{Device 1K-blocks Used Avail Capacity\\n/dev/ada0p3 2097152 0 2097152 0%\\n};\n"
-	);
+	local $Monitoring::Sneck::Checks::swap::SWAPINFO = $data . '/swap/swapinfo';
 	%sysctl = ( 'vm.stats.vm.v_swappgsin' => 5, 'vm.stats.vm.v_swappgsout' => 7 );
 	like( $run->( 'swap', '-C', 1 )->{stdout}, qr/no swap rate yet/, 'FreeBSD, a reboot starts over' );
 }
@@ -160,14 +153,8 @@ like( $run->( 'procs', '-r', $marker, '--fd-warning', 80 )->{stdout},
 }
 
 # containers
-local $Monitoring::Sneck::Checks::containers::RUNTIMES{docker} = $stand_in->( 'docker', <<'END' );
-print "web\trunning\tUp 3 hours (healthy)\n";
-print "db\trunning\tUp 3 hours (unhealthy)\n";
-print "worker\trestarting\tRestarting (1) 5 seconds ago\n";
-print "old\texited\tExited (0) 2 days ago\n";
-print "buildkit\trunning\tUp 1 hour (unhealthy)\n";
-END
-local $Monitoring::Sneck::Checks::containers::RUNTIMES{podman} = $dir . '/nope';
+local $Monitoring::Sneck::Checks::containers::RUNTIMES{docker} = $data . '/containers/docker';
+local $Monitoring::Sneck::Checks::containers::RUNTIMES{podman} = $data . '/containers/nope';
 is(
 	$run->( 'containers', '-n', 'web', '-n', 'old', '-n', 'cache', '-x', '^build' )->{stdout},
 	"CONTAINERS CRITICAL - 3 of 5 containers running, old is exited, cache is not there, db is unhealthy, worker is restarting | running=3;;;0\n",
@@ -180,10 +167,7 @@ is(
 	'runtime not there'
 );
 {
-	local $Monitoring::Sneck::Checks::containers::RUNTIMES{docker} = $stand_in->(
-		'docker_denied',
-		"print STDERR qq{permission denied while trying to connect to the Docker daemon socket\\n}; exit 1;\n"
-	);
+	local $Monitoring::Sneck::Checks::containers::RUNTIMES{docker} = $data . '/containers/docker_denied';
 	like(
 		$run->('containers')->{stdout},
 		qr/\ACONTAINERS UNKNOWN - docker ps exited 1, "permission denied/,
@@ -193,25 +177,11 @@ is(
 
 # jails
 {
-	local $Monitoring::Sneck::Checks::base::OS   = 'freebsd';
-	local $Monitoring::Sneck::Checks::jails::JLS = $stand_in->( 'jls', "print qq{name=www\\nname=db\\n};\n" );
-	local $Monitoring::Sneck::Checks::jails::VM  = $stand_in->(
-		'vm',
-		"print qq{NAME     DATASTORE  LOADER  CPU  MEMORY  VNC  AUTO     STATE\\nrouter   default    bhyveload  2  2G  -  Yes [1]  Running (1234)\\nnas      default    uefi    4    8G      -    No       Stopped\\n};\n"
-	);
-	local $Monitoring::Sneck::Checks::jails::JAIL_CONF = $write->( 'jail.conf', <<'END' );
-exec.start = "/bin/sh /etc/rc";
-path = "/jails/$name";
-# old { not a jail }
-www {
-	host.hostname = "www.example.org";
-	exec.poststart = "logger {started}";
-}
-db { ip4.addr = 192.0.2.20; }
-/* gone { } */
-END
-	local $Monitoring::Sneck::Checks::jails::JAIL_CONF_D = $dir . '/jail.conf.d';
-	$write->( 'jail.conf.d/mail.conf', "mail {\n\tpath = /jails/mail;\n}\n" );
+	local $Monitoring::Sneck::Checks::base::OS           = 'freebsd';
+	local $Monitoring::Sneck::Checks::jails::JLS         = $data . '/jails/jls';
+	local $Monitoring::Sneck::Checks::jails::VM          = $data . '/jails/vm';
+	local $Monitoring::Sneck::Checks::jails::JAIL_CONF   = $data . '/jails/jail.conf';
+	local $Monitoring::Sneck::Checks::jails::JAIL_CONF_D = $data . '/jails/jail.conf.d';
 	is_deeply(
 		[ Monitoring::Sneck::Checks::jails->new( args => ['-a'] )->configured ],
 		[ 'db', 'mail', 'www' ],
@@ -232,16 +202,16 @@ END
 		'everything excluded'
 	);
 	{
-		local $Monitoring::Sneck::Checks::jails::JAIL_CONF   = $write->( 'empty.conf', "# nothing here\n" );
-		local $Monitoring::Sneck::Checks::jails::JAIL_CONF_D = $dir . '/empty.d';
+		local $Monitoring::Sneck::Checks::jails::JAIL_CONF   = $data . '/jails/empty.conf';
+		local $Monitoring::Sneck::Checks::jails::JAIL_CONF_D = $data . '/jails/empty.d';
 		is(
 			$run->( 'jails', '-a' )->{stdout},
-			"JAILS UNKNOWN - no jails configured in $dir/empty.conf or $dir/empty.d\n",
+			"JAILS UNKNOWN - no jails configured in $data/jails/empty.conf or $data/jails/empty.d\n",
 			'nothing configured'
 		);
 		is(
 			$run->( 'jails', '-a', '-v', 'router' )->{stdout},
-			"JAILS UNKNOWN - 1 VMs running, no jails configured in $dir/empty.conf or $dir/empty.d\n",
+			"JAILS UNKNOWN - 1 VMs running, no jails configured in $data/jails/empty.conf or $data/jails/empty.d\n",
 			'nothing configured, but a VM to check'
 		);
 	}

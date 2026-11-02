@@ -15,6 +15,7 @@ use Monitoring::Sneck::Checks::systemd_failed;
 use Monitoring::Sneck::Checks::service;
 
 my $dir   = TestTmp::dir();
+my $data  = $FindBin::Bin . '/data';
 my $write = sub {
 	my ( $name, $content ) = @_;
 	my $path = $dir . '/' . $name;
@@ -22,12 +23,6 @@ my $write = sub {
 	open( my $fh, '>', $path ) or die($!);
 	print $fh $content;
 	close($fh);
-	return $path;
-};
-my $stand_in = sub {
-	my ( $name, $code ) = @_;
-	my $path = $write->( $name, '#!' . $^X . "\n" . $code );
-	chmod( 0755, $path );
 	return $path;
 };
 local $Monitoring::Sneck::Checks::base::OS        = 'linux';
@@ -74,22 +69,15 @@ unlink( $dir . '/proc/mdstat' );
 is( $run->('swraid')->{stdout}, "SWRAID OK - no software RAID arrays\n", 'no md at all' );
 {
 	local $Monitoring::Sneck::Checks::base::OS        = 'freebsd';
-	local $Monitoring::Sneck::Checks::swraid::GMIRROR = $stand_in->(
-		'gmirror',
-		"print qq{mirror/gm0  COMPLETE  ada0 (ACTIVE)\\nmirror/gm0  COMPLETE  ada1 (ACTIVE)\\nmirror/gm1  DEGRADED  ada2 (ACTIVE)\\nmirror/gm1  DEGRADED  ada3 (SYNCHRONIZING, 45%)\\nmirror/gm2  DEGRADED  ada4 (ACTIVE)\\n};\n"
-	);
-	local $Monitoring::Sneck::Checks::swraid::GRAID
-		= $stand_in->( 'graid', "print STDERR qq{graid: Class 'RAID' not found.\\n}; exit 1;\n" );
+	local $Monitoring::Sneck::Checks::swraid::GMIRROR = $data . '/swraid/gmirror';
+	local $Monitoring::Sneck::Checks::swraid::GRAID   = $data . '/swraid/graid';
 	is(
 		$run->('swraid')->{stdout},
 		"SWRAID CRITICAL - mirror/gm0 complete, mirror/gm1 degraded, ada3 synchronizing, 45%, mirror/gm2 degraded\n",
 		'gmirror, graid not loaded'
 	);
-	$Monitoring::Sneck::Checks::swraid::GMIRROR = $dir . '/nope';
-	$Monitoring::Sneck::Checks::swraid::GRAID   = $stand_in->(
-		'graid_ok',
-		"print qq{raid/r0  OPTIMAL  ada0 (ACTIVE (ACTIVE))\\nraid/r0  OPTIMAL  ada1 (ACTIVE (ACTIVE))\\n};\n"
-	);
+	$Monitoring::Sneck::Checks::swraid::GMIRROR = $data . '/swraid/nope';
+	$Monitoring::Sneck::Checks::swraid::GRAID   = $data . '/swraid/graid_ok';
 	is( $run->( 'swraid', '-a', 'raid/r0' )->{stdout}, "SWRAID OK - raid/r0 optimal\n", 'graid, gmirror not there' );
 }
 
@@ -102,18 +90,14 @@ is( $run->('conntrack')->{stdout},
 	'Linux' );
 {
 	local $Monitoring::Sneck::Checks::base::OS         = 'freebsd';
-	local $Monitoring::Sneck::Checks::conntrack::PFCTL = $stand_in->( 'pfctl', <<'END' );
-if ( $ARGV[0] eq '-si' ) { print "Status: Enabled for 10 days 01:02:03           Debug: Urgent\n\nState Table                          Total             Rate\n  current entries                    95000\n  searches                         1234567            1.0/s\n"; exit 0 }
-print "states        hard limit   100000\nsrc-nodes     hard limit    10000\n";
-END
+	local $Monitoring::Sneck::Checks::conntrack::PFCTL = $data . '/conntrack/pfctl';
 	is( $run->('conntrack')->{code}, 2, 'FreeBSD pf states' );
 	like(
 		$run->('conntrack')->{stdout},
 		qr/\ACONNTRACK CRITICAL - pf states 95.0% used, 95000 of 100000/,
 		'FreeBSD message'
 	);
-	$Monitoring::Sneck::Checks::conntrack::PFCTL
-		= $stand_in->( 'pfctl_off', "print qq{Status: Disabled for 0 days 00:00:00\\n};\n" );
+	$Monitoring::Sneck::Checks::conntrack::PFCTL = $data . '/conntrack/pfctl_off';
 	is( $run->('conntrack')->{stdout}, "CONNTRACK OK - pf is not enabled\n", 'FreeBSD pf off' );
 }
 
@@ -133,10 +117,7 @@ $write->( 'proc/vmstat', "nr_free_pages 1000\n" );
 like( $run->('oom')->{stderr}, qr/does not count OOM kills/, 'old kernel' );
 
 # systemd_failed
-local $Monitoring::Sneck::Checks::systemd_failed::SYSTEMCTL = $stand_in->( 'systemctl_failed', <<'END' );
-print "systemd-journal-flush.service loaded failed failed Flush Journal\n";
-print "nginx.service                 loaded failed failed A high performance web server\n";
-END
+local $Monitoring::Sneck::Checks::systemd_failed::SYSTEMCTL = $data . '/systemd_failed/systemctl';
 is(
 	$run->('systemd_failed')->{stdout},
 	"SYSTEMD_FAILED CRITICAL - 2 failed units, systemd-journal-flush.service, nginx.service | failed=2;;0;0\n",
@@ -145,8 +126,7 @@ is(
 is( $run->( 'systemd_failed', '-x', 'flush', '-x', '^nginx' )->{stdout},
 	"SYSTEMD_FAILED OK - 0 failed units | failed=0;;0;0\n", '--exclude' );
 {
-	local $Monitoring::Sneck::Checks::systemd_failed::SYSTEMCTL
-		= $stand_in->( 'systemctl_down', "print qq{System has not been booted with systemd\\n}; exit 1;\n" );
+	local $Monitoring::Sneck::Checks::systemd_failed::SYSTEMCTL = $data . '/systemd_failed/systemctl_down';
 	is(
 		$run->('systemd_failed')->{stdout},
 		qq{SYSTEMD_FAILED UNKNOWN - systemctl --failed exited 1, "System has not been booted with systemd"\n},
@@ -155,14 +135,7 @@ is( $run->( 'systemd_failed', '-x', 'flush', '-x', '^nginx' )->{stdout},
 }
 
 # service
-local $Monitoring::Sneck::Checks::service::SYSTEMCTL = $stand_in->( 'systemctl', <<'END' );
-my ( $what, @rest ) = @ARGV;
-my %active  = ( nginx => 'active', 'php8.4-fpm' => 'failed', web => 'inactive' );
-my %enabled = ( nginx => 1 );
-if ( $what eq 'is-active' ) { print( ( $active{ $rest[0] } // 'inactive' ) . "\n" ); exit( ( $active{ $rest[0] } // '' ) eq 'active' ? 0 : 3 ) }
-if ( $what eq 'is-enabled' ) { exit( $enabled{ $rest[0] } ? 0 : 1 ) }
-if ( $what eq 'show' ) { print( ( exists( $active{ $rest[-1] } ) ? 'loaded' : 'not-found' ) . "\n" ); exit 0 }
-END
+local $Monitoring::Sneck::Checks::service::SYSTEMCTL = $data . '/service/systemctl';
 is( $run->( 'service', '-s', 'nginx', '-e' )->{stdout}, "SERVICE OK - nginx active\n", 'running and enabled' );
 is(
 	$run->( 'service', '-s', 'nginx', '-s', 'php8.4-fpm', '-s', 'web', '-s', 'nope' )->{stdout},
@@ -170,8 +143,7 @@ is(
 	'not running'
 );
 {
-	local $Monitoring::Sneck::Checks::service::SYSTEMCTL
-		= $stand_in->( 'systemctl2', "exit( \$ARGV[0] eq 'is-active' ? 0 : 1 );\n" );
+	local $Monitoring::Sneck::Checks::service::SYSTEMCTL = $data . '/service/systemctl_not_enabled';
 	is(
 		$run->( 'service', '-s', 'cron', '-e' )->{stdout},
 		"SERVICE CRITICAL - cron is running but not enabled\n",
@@ -180,14 +152,7 @@ is(
 }
 {
 	local $Monitoring::Sneck::Checks::base::OS         = 'freebsd';
-	local $Monitoring::Sneck::Checks::service::SERVICE = $stand_in->( 'service', <<'END' );
-my @args = @ARGV;
-my $jail = $args[0] eq '-j' ? splice( @args, 0, 2 ) && 1 : 0;
-my ( $name, $what ) = @args;
-if ( $name eq 'nope' ) { print STDERR "nope does not exist in /etc/rc.d or the local startup directories\n"; exit 1 }
-if ( $what eq 'status' ) { exit( $name eq 'sshd' || ( $jail && $name eq 'nginx' ) ? 0 : 1 ) }
-exit( $name eq 'sshd' ? 0 : 1 );
-END
+	local $Monitoring::Sneck::Checks::service::SERVICE = $data . '/service/service';
 	is( $run->( 'service', '-s', 'sshd', '-e' )->{stdout}, "SERVICE OK - sshd running\n", 'FreeBSD' );
 	is(
 		$run->( 'service', '-s', 'nginx', '-s', 'nope' )->{stdout},

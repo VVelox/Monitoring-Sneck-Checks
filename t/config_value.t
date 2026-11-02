@@ -3,25 +3,13 @@ use 5.014;
 use strict;
 use warnings;
 use FindBin;
-use lib $FindBin::Bin . '/lib';
 use Test::More;
-use TestTmp;
 use Monitoring::Sneck::Checks;
 
-my $dir   = TestTmp::dir();
-my $write = sub {
-	my ( $name, $content ) = @_;
-	open( my $fh, '>', $dir . '/' . $name ) or die($!);
-	print $fh $content;
-	close($fh);
-	return $dir . '/' . $name;
-};
-my $run = sub { return Monitoring::Sneck::Checks->run( check => 'config_value', args => [@_] ) };
+my $data = $FindBin::Bin . '/data/config_value';
+my $run  = sub { return Monitoring::Sneck::Checks->run( check => 'config_value', args => [@_] ) };
 
-my $login_defs = $write->(
-	'login.defs',
-	"# login.defs\nPASS_MAX_DAYS\t99999\nPASS_MIN_DAYS 1 # at least a day\nUMASK\t\t022\nENCRYPT_METHOD YESCRYPT\nEMPTY_THING =\n"
-);
+my $login_defs = $data . '/login.defs';
 is(
 	$run->(
 		'-f', $login_defs,                      '-e', 'PASS_MIN_DAYS>=1',
@@ -48,9 +36,7 @@ is(
 	'a empty value not wanted, or wanted and not had'
 );
 
-my $rc_conf = $write->(
-	'rc.conf', qq{sshd_enable="YES"\nsendmail_enable="NONE"\nifconfig_em0="inet 192.0.2.10/24"\nsshd_enable="NO"\n}
-);
+my $rc_conf = $data . '/rc.conf';
 is(
 	$run->( '-f', $rc_conf, '-S', '=', '-e', 'sendmail_enable=NO|NONE', '-e', 'ifconfig_em0=inet 192.0.2.10/24' )
 		->{code},
@@ -74,7 +60,7 @@ is(
 	'names with case'
 );
 
-my $sysctl_conf = $write->( 'sysctl.conf', "net.ipv4.ip_forward = 1\nkernel.randomize_va_space=2\n" );
+my $sysctl_conf = $data . '/sysctl.conf';
 is(
 	$run->( '-f', $sysctl_conf, '-S', '=', '-e', 'net.ipv4.ip_forward=0', '-e', 'kernel.randomize_va_space=2' )
 		->{stdout},
@@ -82,7 +68,7 @@ is(
 	'sysctl.conf'
 );
 
-like( $run->( '-f', $dir . '/nope', '-e', 'a=b' )->{stdout},
+like( $run->( '-f', $data . '/nope', '-e', 'a=b' )->{stdout},
 	qr/\ACONFIG_VALUE CRITICAL - can not read \S+nope/, 'missing' );
 foreach my $bad (
 	[ '-f', $login_defs ],

@@ -81,10 +81,11 @@ like(
 	qr/\ACERT_FILE CRITICAL - no certificates in/,
 	'no certificates'
 );
-open( my $fh, '>', $dir . '/garbage.pem' ) or die($!);
-print $fh "-----BEGIN CERTIFICATE-----\nbm90IGEgY2VydA==\n-----END CERTIFICATE-----\n";
-close($fh);
-like( $run->( '-f', $dir . '/garbage.pem' )->{stdout}, qr/garbage.pem can not be parsed/, 'not parsable' );
+like(
+	$run->( '-f', $FindBin::Bin . '/data/cert_file/garbage.pem' )->{stdout},
+	qr/garbage.pem can not be parsed/,
+	'not parsable'
+);
 is( $run->()->{code}, 3, 'no --file' );
 
 done_testing();

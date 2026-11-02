@@ -6,22 +6,13 @@ use FindBin;
 use lib $FindBin::Bin . '/lib';
 use Test::More;
 use TestTmp;
-use File::Path qw(make_path);
 use Monitoring::Sneck::Checks;
 use Monitoring::Sneck::Checks::base;
 
-my $dir   = TestTmp::dir();
-my $write = sub {
-	my ( $name, $content ) = @_;
-	my $path = $dir . '/' . $name;
-	make_path( $path =~ s{/[^/]+\z}{}r );
-	open( my $fh, '>', $path ) or die($!);
-	print $fh $content;
-	close($fh);
-	return $path;
-};
+my $dir  = TestTmp::dir();
+my $data = $FindBin::Bin . '/data';
 local $Monitoring::Sneck::Checks::base::OS   = 'linux';
-local $Monitoring::Sneck::Checks::base::PROC = $dir . '/proc';
+local $Monitoring::Sneck::Checks::base::PROC = $data . '/uptime/proc';
 my $run = sub {
 	my ( $check, @args ) = @_;
 	return Monitoring::Sneck::Checks->run( check => $check, args => \@args );
@@ -37,7 +28,10 @@ my %sysctl;
 require Proc::ProcessTable;
 my ($self_process) = grep { $_->pid == $$ } @{ Proc::ProcessTable->new->table };
 my $name           = $self_process->fname;
-my $pid_file       = $write->( 'test.pid', $$ . "\n" );
+my $pid_file       = $dir . '/test.pid';
+open( my $fh, '>', $pid_file ) or die($!);
+print $fh $$ . "\n";
+close($fh);
 is( $run->( 'pid_file', '-f', $pid_file )->{stdout}, "PID_FILE OK - $$ from $pid_file is running\n", 'running' );
 is(
 	$run->( 'pid_file', '-f', $pid_file, '-n', $name )->{stdout},
@@ -52,26 +46,26 @@ is(
 my $dead = fork();
 exit(0) if !$dead;
 waitpid( $dead, 0 );
-$write->( 'dead.pid', $dead );
+open( $fh, '>', $dir . '/dead.pid' ) or die($!);
+print $fh $dead;
+close($fh);
 is(
 	$run->( 'pid_file', '-f', $dir . '/dead.pid' )->{stdout},
 	"PID_FILE CRITICAL - $dead from $dir/dead.pid is not running\n",
 	'not running'
 );
-$write->( 'junk.pid', "junk\n" );
 is(
-	$run->( 'pid_file', '-f', $dir . '/junk.pid' )->{stdout},
-	"PID_FILE CRITICAL - $dir/junk.pid does not have a PID\n",
+	$run->( 'pid_file', '-f', $data . '/pid_file/junk.pid' )->{stdout},
+	"PID_FILE CRITICAL - $data/pid_file/junk.pid does not have a PID\n",
 	'not a PID'
 );
-like( $run->( 'pid_file', '-f', $dir . '/nope.pid' )->{stdout},
+like( $run->( 'pid_file', '-f', $data . '/pid_file/nope.pid' )->{stdout},
 	qr/\APID_FILE CRITICAL - can not read \S+nope.pid/, 'missing' );
 
 # uptime
-$write->( 'proc/uptime', "1049040.55 4000000.00\n" );
 is( $run->('uptime')->{stdout}, "UPTIME OK - up 12 days, 3:24 | uptime=1049040s;900:;;0\n", 'uptime' );
 is( $run->( 'uptime', '-w', '900:864000' )->{code}, 1,                                      'up too long' );
-$write->( 'proc/uptime', "300.00 1200.00\n" );
+$Monitoring::Sneck::Checks::base::PROC = $data . '/uptime/proc_rebooted';
 is( $run->('uptime')->{stdout}, "UPTIME WARNING - up 0:05 | uptime=300s;900:;;0\n", 'just rebooted' );
 {
 	local $Monitoring::Sneck::Checks::base::OS = 'freebsd';
@@ -92,7 +86,7 @@ is( $run->('uptime')->{stdout}, "UPTIME WARNING - up 0:05 | uptime=300s;900:;;0\
 }
 
 # file_handles
-$write->( 'proc/sys/fs/file-nr', "8500\t0\t10000\n" );
+$Monitoring::Sneck::Checks::base::PROC = $data . '/file_handles/proc';
 is( $run->('file_handles')->{stdout},
 	"FILE_HANDLES WARNING - 85.0% used, 8500 of 10000 open | used=85.0%;80;90;0;100 open=8500;;;0;10000\n",
 	'Linux' );

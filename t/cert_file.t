@@ -5,11 +5,11 @@ use warnings;
 use FindBin;
 use lib $FindBin::Bin . '/lib';
 use Test::More;
-use File::Temp qw(tempdir);
+use TestTmp;
 use TestCerts;
 use Monitoring::Sneck::Checks;
 
-my $dir   = tempdir( CLEANUP => 1 );
+my $dir   = TestTmp::dir();
 my $paths = TestCerts::make(
 	$dir,
 	{ name => 'www',   days => 20, names => [ 'www.example.org', 'example.org' ] },

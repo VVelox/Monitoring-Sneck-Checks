@@ -2,14 +2,16 @@
 use 5.014;
 use strict;
 use warnings;
+use FindBin;
+use lib $FindBin::Bin . '/lib';
 use Test::More;
-use File::Temp qw(tempdir);
+use TestTmp;
 use File::Path qw(make_path);
 use Monitoring::Sneck::Checks;
 use Monitoring::Sneck::Checks::base;
 use Monitoring::Sneck::Checks::sensors;
 
-my $dir = tempdir( CLEANUP => 1 );
+my $dir = TestTmp::dir();
 
 # makes a hwmon device from file names to contents
 my $device = sub {

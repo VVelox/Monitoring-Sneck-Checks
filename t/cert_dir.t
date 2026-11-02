@@ -5,12 +5,12 @@ use warnings;
 use FindBin;
 use lib $FindBin::Bin . '/lib';
 use Test::More;
-use File::Temp qw(tempdir);
+use TestTmp;
 use File::Path qw(make_path);
 use TestCerts;
 use Monitoring::Sneck::Checks;
 
-my $dir = tempdir( CLEANUP => 1 );
+my $dir = TestTmp::dir();
 make_path( $dir . '/ssl/sub' );
 my $paths = TestCerts::make(
 	$dir . '/ssl',

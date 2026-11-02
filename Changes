@@ -1,4 +1,7 @@
 Revision history for Monitoring-Sneck-Checks
 
+0.1.0   unreleased
+        - tests use t/tmp and t/data, not the system temp directory
+
 0.0.1   2026-11-02/14:00
         - initial release

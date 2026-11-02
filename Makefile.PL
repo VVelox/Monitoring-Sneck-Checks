@@ -40,7 +40,7 @@ my %WriteMakefileArgs = (
 		'XML::LibXML'            => '0',
 	},
 	dist       => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-	clean      => { FILES    => 'Monitoring-Sneck-Checks-*' },
+	clean      => { FILES    => 'Monitoring-Sneck-Checks-* t/tmp' },
 	META_MERGE => {
 		"meta-spec" => { version => 2 },
 		resources   => {

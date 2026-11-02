@@ -5,7 +5,7 @@ use warnings;
 use FindBin;
 use lib $FindBin::Bin . '/lib';
 use Test::More;
-use File::Temp qw(tempdir);
+use TestTmp;
 use TestCerts;
 use TestServer;
 use IO::Socket::SSL;
@@ -14,7 +14,7 @@ use Monitoring::Sneck::Checks::https_cert;
 
 plan( skip_all => 'needs fork' ) if $^O eq 'MSWin32';
 
-my $dir   = tempdir( CLEANUP => 1 );
+my $dir   = TestTmp::dir();
 my $paths = TestCerts::make( $dir, { name => 'www', days => 20, names => [ 'www.example.org', '127.0.0.1' ] } );
 my @pids;
 my $parent_pid = $$;

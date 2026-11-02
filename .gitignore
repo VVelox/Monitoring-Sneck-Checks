@@ -35,6 +35,8 @@ inc/
 /*.zip
 # where Makefile.PL has make put the scripts from src_bin
 /bin/
+# scratch directories the tests make, see t/lib/TestTmp.pm
+/t/tmp/
 
 # Carton/Carmel
 /local/

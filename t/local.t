@@ -2,35 +2,27 @@
 use 5.014;
 use strict;
 use warnings;
+use FindBin;
 use Test::More;
-use File::Temp qw(tempdir);
-use File::Path qw(make_path);
 use Monitoring::Sneck::Checks;
 
-my $dir   = tempdir( CLEANUP => 1 );
-my $write = sub {
-	my ( $name, $content ) = @_;
-	open( my $fh, '>', $dir . '/' . $name ) or die($!);
-	print $fh $content;
-	close($fh);
-	return $dir . '/' . $name;
-};
-my $run = sub {
+my $data = $FindBin::Bin . '/data';
+my $run  = sub {
 	my ( $check, @args ) = @_;
 	return Monitoring::Sneck::Checks->run( check => $check, args => \@args );
 };
 
-# file_mode, owned by whoever runs the tests
-my $user  = getpwuid($<);
-my $file  = $write->( 'secret', 'x' );
-# new files inherit the group from the directory on BSD, so ask the file
-my $group = getgrgid( ( stat($file) )[5] );
-chmod( 0600, $file );
+# file_mode, owned by whoever checked this out, its mode set as each case needs
+my $file = $data . '/file_mode/secret';
+my ( $uid, $gid ) = ( stat($file) )[ 4, 5 ];
+my $user  = getpwuid($uid);
+my $group = getgrgid($gid);
+chmod( 0600, $file ) or die($!);
 my $return = $run->( 'file_mode', '-f', $file, '-m', '0600', '-o', $user );
 is( $return->{code},   0,                                                                  'mode and owner' );
 is( $return->{stdout}, 'FILE_MODE OK - ' . $file . ' 0600 ' . $user . ':' . $group . "\n", 'output' );
-is( $run->( 'file_mode', '-f', $file, '-M', '0640', '-o', $<, '-g', ( stat($file) )[5] )->{code},
-	0, '--max-mode allows less, IDs' );
+is( $run->( 'file_mode', '-f', $file, '-M', '0640', '-o', $uid, '-g', $gid )->{code}, 0,
+	'--max-mode allows less, IDs' );
 chmod( 0644, $file );
 $return = $run->( 'file_mode', '-f', $file, '-M', '0640', '-m', '0600' );
 is( $return->{code}, 2, 'too open is CRITICAL' );
@@ -44,32 +36,23 @@ is(
 		. ", mode is not 0600, mode is more than 0640\n",
 	'and says how'
 );
-like( $run->( 'file_mode', '-f', $file, '-o', 0 )->{stdout}, qr/, owner is not 0\n\z/, 'wrong owner' ) if $< != 0;
-mkdir( $dir . '/sticky' );
-chmod( 01777, $dir . '/sticky' );
-is( $run->( 'file_mode', '-f', $dir . '/sticky', '-m', '1777' )->{code}, 0, 'sticky directory' );
-like( $run->( 'file_mode', '-f', $dir . '/nope', '-m', '0600' )->{stdout},
+like( $run->( 'file_mode', '-f', $file, '-o', 0 )->{stdout}, qr/, owner is not 0\n\z/, 'wrong owner' ) if $uid != 0;
+# the sticky bit, on the directory holding it, put back after
+my $sticky = $data . '/file_mode';
+my $mode   = ( stat($sticky) )[2] & 07777;
+chmod( 01777, $sticky );
+is( $run->( 'file_mode', '-f', $sticky, '-m', '1777' )->{code}, 0, 'sticky directory' );
+chmod( $mode, $sticky );
+like( $run->( 'file_mode', '-f', $sticky . '/nope', '-m', '0600' )->{stdout},
 	qr/\AFILE_MODE CRITICAL - \S+nope, No such file/, 'missing' );
-is( $run->( 'file_mode', '-f', $dir . '/nope', '-m', '0600', '-i' )->{code}, 0, 'missing with -i' );
+is( $run->( 'file_mode', '-f', $sticky . '/nope', '-m', '0600', '-i' )->{code}, 0, 'missing with -i' );
 
 foreach my $bad ( [ '-f', $file ], [ '-f', $file, '-m', '644x' ], [ '-f', $file, '-o', 'no-such-user-here' ] ) {
 	is( $run->( 'file_mode', @{$bad} )->{code}, 3, 'bad args, ' . join( ' ', @{$bad} ) );
 }
 
-# sshd_config
-make_path( $dir . '/ssh/sshd_config.d' );
-my $sshd = $write->( 'ssh/sshd_config', <<'END' );
-# a comment
-Include sshd_config.d/*.conf
-PermitRootLogin yes
-PasswordAuthentication   no
-Ciphers  "chacha20-poly1305@openssh.com,aes256-gcm@openssh.com"
-MaxAuthTries=4
-Match User backup
-    PasswordAuthentication yes
-    X11Forwarding yes
-END
-$write->( 'ssh/sshd_config.d/10-hardening.conf', "permitrootlogin No\n" );
+# sshd_config, the Include in it found under the directory it is in
+my $sshd = $data . '/sshd_config/sshd_config';
 $return = $run->(
 	'sshd_config',      '-f', $sshd, '-e', 'PermitRootLogin=no', '-e', 'passwordauthentication=no', '-e',
 	'MaxAuthTries=3|4', '-e', 'Ciphers=chacha20-poly1305@openssh.com,aes256-gcm@openssh.com'
@@ -92,15 +75,14 @@ like(
 	'--default not allowed'
 );
 like(
-	$run->( 'sshd_config', '-f', $sshd, '-I', $dir . '/nowhere', '-e', 'PermitRootLogin=no' )->{stdout},
+	$run->( 'sshd_config', '-f', $sshd, '-I', $data . '/nowhere', '-e', 'PermitRootLogin=no' )->{stdout},
 	qr/\ASSHD_CONFIG CRITICAL - PermitRootLogin is yes, not no\n\z/,
 	'--include-dir, under which the include is not found'
 );
-like( $run->( 'sshd_config', '-f', $dir . '/nope', '-e', 'A=b' )->{stdout},
+like( $run->( 'sshd_config', '-f', $data . '/nope', '-e', 'A=b' )->{stdout},
 	qr/\ASSHD_CONFIG CRITICAL - can not read/, 'missing' );
-$write->( 'ssh/loop', "Include loop\n" );
 like(
-	$run->( 'sshd_config', '-f', $dir . '/ssh/loop', '-e', 'A=b' )->{stdout},
+	$run->( 'sshd_config', '-f', $data . '/sshd_config/loop', '-e', 'A=b' )->{stdout},
 	qr/Include goes over 16 deep/,
 	'Include loop'
 );

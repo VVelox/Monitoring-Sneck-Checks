@@ -2,13 +2,15 @@
 use 5.014;
 use strict;
 use warnings;
+use FindBin;
+use lib $FindBin::Bin . '/lib';
 use Test::More;
-use File::Temp  qw(tempdir);
+use TestTmp;
 use Digest::SHA qw(sha256_hex sha512_hex sha1_hex);
 use Digest::MD5 qw(md5_hex);
 use Monitoring::Sneck::Checks;
 
-my $dir   = tempdir( CLEANUP => 1 );
+my $dir   = TestTmp::dir();
 my $write = sub {
 	my ( $name, $content ) = @_;
 	open( my $fh, '>', $dir . '/' . $name ) or die($!);

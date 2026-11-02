@@ -2,15 +2,17 @@
 use 5.014;
 use strict;
 use warnings;
+use FindBin;
+use lib $FindBin::Bin . '/lib';
 use Test::More;
-use File::Temp qw(tempdir);
+use TestTmp;
 use Monitoring::Sneck::Checks;
 use Monitoring::Sneck::Checks::debsecan;
 use Monitoring::Sneck::Checks::pkg_audit;
 
 plan( skip_all => 'needs fork' ) if $^O eq 'MSWin32';
 
-my $dir = tempdir( CLEANUP => 1 );
+my $dir = TestTmp::dir();
 
 # writes a stand in for a command, saving its args to $name.args, printing output, and exiting with exit
 my $command = sub {

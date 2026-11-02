@@ -305,7 +305,12 @@ sub freebsd_info {
 
 	my ($flags)  = $output =~ /flags=[0-9a-f]+<([^>]*)>/;
 	my ($status) = $output =~ /^\s*status: (.+?)\s*$/m;
-	my ($media)  = $output =~ /^\s*media: .*\((.+)\)\s*$/m;
+
+	# what was negotiated is in parens, as "media: Ethernet autoselect (1000baseT <full-duplex>)", while media
+	# set by hand has none, as "media: Ethernet 1000baseT <full-duplex>", and a lagg or a link that is down
+	# is just "media: Ethernet autoselect", which says no speed
+	my ($media) = $output =~ /^\s*media: (.+?)\s*$/m;
+	$media = $1 if defined($media) && $media =~ /\((.+)\)/;
 	my ( $speed, $duplex );
 	if ( defined($media) && $media =~ /([0-9]+)(G?)base/i ) {
 		$speed = $1 * ( $2 ? 1000 : 1 );

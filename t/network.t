@@ -182,6 +182,14 @@ if ( $ARGV[0] eq 'ix0' ) {
 	print "ix0: flags=8863<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> metric 0 mtu 9000\n\tmedia: Ethernet autoselect (10Gbase-SR <full-duplex,rxpause,txpause>)\n\tstatus: no carrier\n";
 	exit 0;
 }
+if ( $ARGV[0] eq 'igb0' ) {
+	print "igb0: flags=8863<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> metric 0 mtu 1500\n\tmedia: Ethernet 100baseTX <half-duplex>\n\tstatus: active\n";
+	exit 0;
+}
+if ( $ARGV[0] eq 'lagg0' ) {
+	print "lagg0: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> metric 0 mtu 1500\n\tmedia: Ethernet autoselect\n\tstatus: active\n";
+	exit 0;
+}
 print STDERR "ifconfig: interface $ARGV[0] does not exist\n";
 exit 1;
 END
@@ -197,6 +205,12 @@ END
 		"INTERFACE OK - em0 up 1000 Mb/s full | 'em0 errors'=0.00;0;;0 'em0 drops'=0.00;;;0\n",
 		'FreeBSD counters from netstat'
 	);
+	is(
+		$run->( 'interface', '-i', 'igb0', '-s', 1000, '-F' )->{stdout},
+		"INTERFACE WARNING - igb0 up 100 Mb/s half, under 1000 Mb/s, not full duplex\n",
+		'FreeBSD media set by hand, no parens'
+	);
+	is( $run->( 'interface', '-i', 'lagg0' )->{stdout}, "INTERFACE OK - lagg0 up\n", 'FreeBSD lagg, no speed' );
 	is( $run->( 'interface', '-i', 'em9' )->{stdout}, "INTERFACE CRITICAL - em9 is not there\n", 'FreeBSD not there' );
 }
 

@@ -37,6 +37,10 @@ sub start {
 	if ( $opts{ssl} ) {
 		require IO::Socket::SSL;
 	}
+
+	# a client that goes right after the TLS handshake, as the certificate checks do, leaves the
+	# write of the greeting or of the TLS shutdown to get EPIPE, which must not end the server
+	$SIG{PIPE} = 'IGNORE';
 	while (1) {
 		my $client = $listen->accept or next;
 		if ( $opts{handler} ) {

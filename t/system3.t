@@ -224,6 +224,25 @@ END
 	is( $run->( 'jails', '-a', '-x', 'mail' )->{code}, 0, '--exclude' );
 	is( $run->( 'jails', '-v', 'router', '-v', 'nas', '-v', 'gone' )->{stdout},
 		"JAILS CRITICAL - 1 VMs running, VM nas is stopped, VM gone is not there\n", 'VMs' );
+	is(
+		$run->( 'jails', '-a', '-x', 'mail', '-x', 'www', '-x', 'db' )->{stdout},
+		"JAILS UNKNOWN - every configured jail is excluded\n",
+		'everything excluded'
+	);
+	{
+		local $Monitoring::Sneck::Checks::jails::JAIL_CONF   = $write->( 'empty.conf', "# nothing here\n" );
+		local $Monitoring::Sneck::Checks::jails::JAIL_CONF_D = $dir . '/empty.d';
+		is(
+			$run->( 'jails', '-a' )->{stdout},
+			"JAILS UNKNOWN - no jails configured in $dir/empty.conf or $dir/empty.d\n",
+			'nothing configured'
+		);
+		is(
+			$run->( 'jails', '-a', '-v', 'router' )->{stdout},
+			"JAILS UNKNOWN - 1 VMs running, no jails configured in $dir/empty.conf or $dir/empty.d\n",
+			'nothing configured, but a VM to check'
+		);
+	}
 }
 like( $run->( 'jails', '-j', 'www' )->{stderr}, qr/not supported on linux/, 'Linux' );
 is( $run->('jails')->{code}, 3, 'nothing to check' );

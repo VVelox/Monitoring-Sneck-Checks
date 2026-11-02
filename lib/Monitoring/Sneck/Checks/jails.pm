@@ -36,6 +36,8 @@ Checks each jail given is running, through jls, and with
 --all-configured, every jail defined in /etc/jail.conf and
 /etc/jail.conf.d/*.conf. Each VM given with --vm must be running too,
 through vm-bhyve's vm list. Any that is not is CRITICAL.
+--all-configured finding no jails, or every one of them excluded, is
+UNKNOWN, as there is nothing to check then.
 
 Only FreeBSD has these, others are UNKNOWN.
 
@@ -80,10 +82,14 @@ sub check {
 
 	die( 'not supported on ' . $self->os . "\n" ) if $self->os ne 'freebsd';
 	my @problems;
+	my @unknown;
 	my %wanted = map { $_ => 1 } @{ $self->opt('jail') // [] };
 	if ( $self->opt('all-configured') ) {
-		$wanted{$_} = 1 foreach $self->configured;
+		my @configured = $self->configured;
+		push( @unknown, 'no jails configured in ' . $JAIL_CONF . ' or ' . $JAIL_CONF_D ) if !defined( $configured[0] );
+		$wanted{$_} = 1 foreach @configured;
 		delete( @wanted{ @{ $self->opt('exclude') // [] } } );
+		push( @unknown, 'every configured jail is excluded' ) if defined( $configured[0] ) && !%wanted;
 	}
 	my $running_jails = 0;
 	if (%wanted) {
@@ -117,9 +123,11 @@ sub check {
 	my @parts;
 	push( @parts, $running_jails . ' jails running' ) if %wanted;
 	push( @parts, $running_vms . ' VMs running' )     if defined( $self->opt('vm') );
-	push( @parts, @problems );
+	push( @parts, @problems, @unknown );
+	my @codes = ( defined( $problems[0] ) ? $self->CRITICAL : $self->OK );
+	push( @codes, $self->UNKNOWN ) if defined( $unknown[0] );
 
-	return $self->finish( defined( $problems[0] ) ? $self->CRITICAL : $self->OK, join( ', ', @parts ) );
+	return $self->finish( $self->worst(@codes), join( ', ', @parts ) );
 } ## end sub check
 
 =head2 configured

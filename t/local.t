@@ -22,8 +22,9 @@ my $run = sub {
 
 # file_mode, owned by whoever runs the tests
 my $user  = getpwuid($<);
-my $group = getgrgid( ( split( / /, $( ) )[0] );
 my $file  = $write->( 'secret', 'x' );
+# new files inherit the group from the directory on BSD, so ask the file
+my $group = getgrgid( ( stat($file) )[5] );
 chmod( 0600, $file );
 my $return = $run->( 'file_mode', '-f', $file, '-m', '0600', '-o', $user );
 is( $return->{code},   0,                                                                  'mode and owner' );

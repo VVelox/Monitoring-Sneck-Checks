@@ -12,11 +12,13 @@ backup_age|perl:file_age -f /var/backups/db.sql.gz -w 90000 -c 180000
 ```
 
 They can also be run from the shell, or used as a nagios plugin, via
-`sneck_check`. `--help` with a check prints its docs.
+`sneck_check`. `--list-checks` lists them and `--help` with a check
+prints its docs.
 
 ```
 sneck_check http -H www.example.org -S -w 1 -c 2
 sneck_check --help http
+sneck_check --list-checks
 ```
 
 ## Checks

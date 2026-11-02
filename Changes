@@ -3,3 +3,4 @@ Revision history for Monitoring-Sneck-Checks
 0.0.1   unreleased
         - initial release
         - sneck_check takes --help as well as -h, and with a check prints its docs
+        - sneck_check --list-checks lists the checks that can be found

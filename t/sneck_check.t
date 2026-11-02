@@ -38,4 +38,14 @@ foreach my $bad ( 'base', 'no_such_check', 'Bad' ) {
 	unlike( $output, qr/Options:/, 'and prints no docs' );
 }
 
+# listing them
+foreach my $flag ( '-l', '--list-checks' ) {
+	$output = `@perl $script $flag`;
+	is( $? >> 8, 0, $flag . ' exits 0' );
+	like( $output, qr/^file_mode :: checks the mode, owner, and group of files$/m,
+		'lists a check with what it is for' );
+	like( $output, qr/^testing$/m, 'and one with no POD by name alone' );
+	unlike( $output, qr/^base\b/m, 'but not base' );
+}
+
 done_testing();

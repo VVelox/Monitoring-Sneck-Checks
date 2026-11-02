@@ -32,6 +32,15 @@ is( Monitoring::Sneck::Checks->load('testing'), 'Monitoring::Sneck::Checks::test
 ok( !eval { Monitoring::Sneck::Checks->load('base'); 1 }, 'load dies on base' );
 like( $@, qr/base is what checks are built on/, 'and says why' );
 
+# list, which reads the files and loads none of them
+my $checks = Monitoring::Sneck::Checks->list;
+is( ref($checks),         'HASH',                                       'list returns a hash ref' );
+is( $checks->{file_mode}, 'checks the mode, owner, and group of files', 'with what a check is for' );
+is( $checks->{testing},   '',                                           'empty for one with no POD' );
+ok( exists( $checks->{broken} ),                'a check that can not load is still listed' );
+ok( !exists( $checks->{base} ),                 'base is not' );
+ok( !$INC{'Monitoring/Sneck/Checks/broken.pm'}, 'and nothing was loaded' );
+
 my $return = $run->( check => 'testing', args => q{--out 'unbalanced} );
 is( $return->{code},   3,                                                 'unbalanced quotes in args are UNKNOWN' );
 is( $return->{stderr}, "TESTING UNKNOWN - args have unbalanced quotes\n", 'and says so' );

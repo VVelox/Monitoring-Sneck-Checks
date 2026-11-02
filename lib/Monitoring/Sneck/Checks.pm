@@ -161,6 +161,75 @@ lookups in the C library, so the first is what is relied on.
 
 =head1 METHODS
 
+=head2 list
+
+Lists the checks that can be found, every Monitoring::Sneck::Checks::*
+module in @INC other than base, by file name, without loading them.
+Where two directories have one, the first is used, as require would.
+
+Returns a hash ref of check names to what each is for, the text after
+the dash on the NAME line of its POD, or a empty string for one that
+has no such line.
+
+    my $checks = Monitoring::Sneck::Checks->list;
+    foreach my $name ( sort( keys( %{$checks} ) ) ) {
+        print $name . ' :: ' . $checks->{$name} . "\n";
+    }
+    # accounts :: checks local user accounts
+    # ...
+
+=cut
+
+sub list {
+	my ($class) = @_;
+
+	my %checks;
+	foreach my $dir (@INC) {
+		next if ref($dir) || !-d $dir . '/Monitoring/Sneck/Checks';
+		foreach my $file ( glob( $dir . '/Monitoring/Sneck/Checks/*.pm' ) ) {
+			my ($name) = $file =~ m{/([a-z][a-z0-9_]*)\.pm\z};
+			next if !defined($name) || $name eq 'base' || exists( $checks{$name} );
+			$checks{$name} = _pod_name_text($file);
+		}
+	}
+
+	return \%checks;
+} ## end sub list
+
+# Reads what a module says it is for, from the NAME section of its POD,
+# for list. The file is read, not loaded, so nothing in it runs.
+#
+# Args...
+#
+#     - file :: Path to the module file.
+#
+# Returns the text after the " - " on the NAME line, or a empty string
+# if the file can not be read or has no such line.
+#
+# Example...
+#
+#     _pod_name_text('/usr/local/lib/perl5/Monitoring/Sneck/Checks/http.pm');
+#     # 'checks HTTP and HTTPS'
+sub _pod_name_text {
+	my ($file) = @_;
+
+	open( my $fh, '<', $file ) or return '';
+	my $in_name;
+	while ( my $line = <$fh> ) {
+		if ( $line =~ /\A=head1 NAME\s*\z/ ) {
+			$in_name = 1;
+		} elsif ( $line =~ /\A=/ ) {
+			$in_name = 0;
+		} elsif ( $in_name && $line =~ /\A\S+ - (.+?)\s*\z/ ) {
+			close($fh);
+			return $1;
+		}
+	} ## end while ( my $line = <$fh> )
+	close($fh);
+
+	return '';
+} ## end sub _pod_name_text
+
 =head2 load
 
 Loads a check, which run does for itself. For when the module is

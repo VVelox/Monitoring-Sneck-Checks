@@ -19,6 +19,9 @@ my $dns = sub {
 	'slow.example.org a'  => undef,
 	'bad.example.org a'   => { rcode  => 'SERVFAIL' },
 	'alias.example.org a' => { answer => ['alias.example.org. 300 IN CNAME www.example.org.'] },
+	'www.example.org any' =>
+		{ answer => [ 'www.example.org. 300 IN A 192.0.2.10', 'www.example.org. 300 IN AAAA 2001:db8::10' ] },
+	'hinfo.example.org any' => { answer => ['hinfo.example.org. 3600 IN HINFO "RFC8482" ""'] },
 );
 
 my $return = $dns->( '-H', 'www.example.org' );
@@ -55,6 +58,18 @@ like(
 	$dns->( '-H', '_dmarc.example.org', '-q', 'TXT', '-r', 'p=none' )->{stdout},
 	qr/, nothing matching \/p=none\/ \|/,
 	'--regex not matching'
+);
+$return = $dns->( '-H', 'www.example.org', '-q', 'any', '-a', '192.0.2.10', '-a', '2001:db8::10' );
+is( $return->{code}, 0, 'ANY takes every record' );
+like(
+	$return->{stdout},
+	qr/\ADNS OK - www.example.org ANY A 192.0.2.10, AAAA 2001:db8::10 in /,
+	'each said with its type'
+);
+like(
+	$dns->( '-H', 'hinfo.example.org', '-q', 'ANY' )->{stdout},
+	qr/\ADNS OK - hinfo.example.org ANY HINFO /,
+	'a RFC 8482 answer is a answer'
 );
 is( $dns->( '-H', 'www.example.org', '-r', '(' )->{code},    3, 'bad --regex' );
 is( $dns->( '-H', 'www.example.org', '-q', 'A;rm' )->{code}, 3, 'bad type' );

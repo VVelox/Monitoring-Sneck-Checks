@@ -34,7 +34,9 @@ or no records of the type is CRITICAL, as is a expected answer missing.
 
 - -H, --hostname :: The name to look up. Required.
 
-- -q, --type :: The record type.
+- -q, --type :: The record type. ANY takes whatever records come
+back, each said with its type, though many servers answer ANY with
+only a HINFO record, as RFC 8482 lets them.
 Default :: A
 
 - -s, --server :: A server to ask. May be given more than once. The
@@ -122,7 +124,11 @@ sub check {
 		return $self->finish( $self->CRITICAL, $name . ' ' . $type . ' got ' . $rcode . $from );
 	}
 
-	my @answers = map { $_->rdstring } grep { $_->type eq $type } $reply->answer;
+	# ANY takes every record, so those are said with their types. Net::DNS wraps long ones, such as
+	# DNSKEY and RRSIG, over lines, which the status line can not have, so runs of space are squashed
+	my @records = grep                 { $type eq 'ANY' || $_->type eq $type } $reply->answer;
+	my @answers = map                  { $_->rdstring =~ s/\s+/ /gr } @records;
+	my @said    = $type eq 'ANY' ? map { $_->type . ' ' . ( $_->rdstring =~ s/\s+/ /gr ) } @records : @answers;
 	if ( !defined( $answers[0] ) ) {
 		return $self->finish( $self->CRITICAL, $name . ' has no ' . $type . ' records' . $from );
 	}
@@ -146,7 +152,7 @@ sub check {
 		push( @problems, 'not authoritative' );
 	}
 
-	my $message = $name . ' ' . $type . ' ' . join( ', ', @answers ) . ' in ' . $seconds . ' seconds' . $from;
+	my $message = $name . ' ' . $type . ' ' . join( ', ', @said ) . ' in ' . $seconds . ' seconds' . $from;
 	$message = $message . ', ' . join( ', ', @problems ) if defined( $problems[0] );
 
 	return $self->finish( $self->worst(@codes), $message );

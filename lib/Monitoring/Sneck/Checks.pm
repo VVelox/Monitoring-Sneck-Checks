@@ -50,6 +50,8 @@ The checks that come with it are...
 
 - accounts :: L<Monitoring::Sneck::Checks::accounts>, local user accounts.
 
+- cciss :: L<Monitoring::Sneck::Checks::cciss>, HP Smart Array controllers, through cciss_vol_status.
+
 - cert_dir :: L<Monitoring::Sneck::Checks::cert_dir>, every certificate in directories.
 
 - cert_file :: L<Monitoring::Sneck::Checks::cert_file>, certificate files.

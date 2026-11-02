@@ -3,6 +3,7 @@ Changes
 lib/Monitoring/Sneck/Checks.pm
 lib/Monitoring/Sneck/Checks/accounts.pm
 lib/Monitoring/Sneck/Checks/base.pm
+lib/Monitoring/Sneck/Checks/cciss.pm
 lib/Monitoring/Sneck/Checks/cert_dir.pm
 lib/Monitoring/Sneck/Checks/cert_file.pm
 lib/Monitoring/Sneck/Checks/checksums.pm
@@ -59,6 +60,7 @@ src_bin/sneck_check
 t/00-load.t
 t/audit.t
 t/base.t
+t/cciss.t
 t/cert_dir.t
 t/cert_file.t
 t/checksums.t

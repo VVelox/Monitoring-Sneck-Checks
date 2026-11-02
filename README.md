@@ -21,6 +21,7 @@ sneck_check http -H www.example.org -S -w 1 -c 2
 ## Checks
 
 - accounts :: UID 0, empty passwords, duplicates, system accounts with login shells, and accounts that must or must not be there.
+- cciss :: HP Smart Array controllers through cciss_vol_status, volumes, drives, spares, enclosures, and cache.
 - cert_dir :: Every certificate in directories, without naming each file.
 - cert_file :: Certificate files, every certificate in each, plus the key and names.
 - checksums :: Files against stored checksums, in sha256sum or FreeBSD sha256 format.

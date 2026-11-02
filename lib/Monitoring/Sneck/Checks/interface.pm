@@ -41,6 +41,9 @@ Errors and drops are checked as a rate, per second, since the last
 run, with the counters kept in a state file, see
 L<Monitoring::Sneck::Checks::base/read_state>. So the first run, or
 one after the counters reset, has no rate and is not checked for them.
+They are only kept and checked if one of --errors-warning,
+--errors-critical, --drops-warning, or --drops-critical is given, so
+nothing else needs the state file.
 
 On Linux, everything is read from /sys/class/net, and --all is every
 interface backed by a device, so not lo, bridges, VLANs, and the like.
@@ -172,7 +175,8 @@ sub interface_status {
 		push( @problems, 'MTU ' . ( $info->{mtu} // 'unknown' ) . ', not ' . $self->opt('mtu') );
 	}
 
-	my $rates = $self->rates( $name, $info );
+	# the rates, and the state they need, only when a range for them was given
+	my $rates = $self->rates_wanted ? $self->rates( $name, $info ) : {};
 	foreach my $kind ( 'errors', 'drops' ) {
 		next if !defined( $rates->{$kind} );
 		my $warning  = $self->opt( $kind . '-warning' );
@@ -195,6 +199,23 @@ sub interface_status {
 
 	return ( $self->worst(@codes), $part );
 } ## end sub interface_status
+
+=head2 rates_wanted
+
+Returns 1 if any of --errors-warning, --errors-critical,
+--drops-warning, or --drops-critical was given, so the rates are to
+be kept and checked, else 0.
+
+=cut
+
+sub rates_wanted {
+	my ($self) = @_;
+
+	return ( grep { defined( $self->opt($_) ) }
+			( 'errors-warning', 'errors-critical', 'drops-warning', 'drops-critical' ) )
+		? 1
+		: 0;
+}
 
 =head2 rates
 

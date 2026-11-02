@@ -134,27 +134,34 @@ is(
 	"INTERFACE OK - eth0 up 1000 Mb/s full\n",
 	'up, at speed'
 );
+ok( !-e $dir . '/state', 'no state kept without a rate range' );
 is(
-	$run->( 'interface', '-i', 'wg0' )->{stdout},
+	$run->( 'interface', '-i', 'wg0', '-r', 10 )->{stdout},
 	"INTERFACE OK - wg0 up\n",
 	'unknown with carrier is up, no rates the first time'
 );
+ok( -e $dir . '/state/interface-wg0.json', 'state kept with one' );
 is(
-	$run->( 'interface', '-i', 'wg0' )->{stdout},
-	"INTERFACE OK - wg0 up | 'wg0 errors'=0.00;;;0 'wg0 drops'=0.00;;;0\n",
+	$run->( 'interface', '-i', 'wg0', '-r', 10 )->{stdout},
+	"INTERFACE OK - wg0 up | 'wg0 errors'=0.00;;;0 'wg0 drops'=0.00;10;;0\n",
 	'rates the second time'
 );
 is(
 	$run->( 'interface', '-a' )->{stdout},
-	"INTERFACE CRITICAL - eth0 up 1000 Mb/s full, eth1 is down | 'eth0 errors'=0.00;;;0 'eth0 drops'=0.00;;;0\n",
+	"INTERFACE CRITICAL - eth0 up 1000 Mb/s full, eth1 is down\n",
 	'--all is those with a device'
 );
 is( $run->( 'interface', '-a', '-x', 'eth1' )->{code}, 0, '--ignore' );
 $nic->( 'eth0', speed => 100, duplex => 'half', mtu => 1500 );
 is(
 	$run->( 'interface', '-i', 'eth0', '-s', 1000, '-F', '-m', 9000 )->{stdout},
-	"INTERFACE WARNING - eth0 up 100 Mb/s half, under 1000 Mb/s, not full duplex, MTU 1500, not 9000 | 'eth0 errors'=0.00;;;0 'eth0 drops'=0.00;;;0\n",
+	"INTERFACE WARNING - eth0 up 100 Mb/s half, under 1000 Mb/s, not full duplex, MTU 1500, not 9000\n",
 	'slow, half duplex, wrong MTU'
+);
+is(
+	$run->( 'interface', '-i', 'eth0', '-e', 0 )->{stdout},
+	"INTERFACE OK - eth0 up 100 Mb/s half\n",
+	'no rates the first time with a range'
 );
 $nic->( 'eth0', 'statistics/rx_errors' => 1000000 );
 like(
@@ -198,7 +205,7 @@ print "Name    Mtu Network       Address              Ipkts Ierrs Idrop    Opkts
 print "$ARGV[1]   1500 <Link#1>      58:9c:fc:00:00:01  100     2     3      200     4     0     5\n";
 print "$ARGV[1]      - 192.0.2.0/24  192.0.2.10           90     -     -      190     -     -     -\n";
 END
-	is( $run->( 'interface', '-a', '-s', 1000, '-F' )->{stdout},
+	is( $run->( 'interface', '-a', '-s', 1000, '-F', '-e', 0 )->{stdout},
 		"INTERFACE CRITICAL - em0 up 1000 Mb/s full, ix0 is down\n", 'FreeBSD' );
 	is(
 		$run->( 'interface', '-i', 'em0', '-e', 0 )->{stdout},

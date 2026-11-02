@@ -40,7 +40,9 @@ and toor on FreeBSD.
 - no password :: An account with a empty password field, which can log
 in without one. Locked accounts, * or !, are fine. This needs reading
 /etc/shadow, or /etc/master.passwd on FreeBSD, so root. Not being able
-to is UNKNOWN, unless --no-passwords is given.
+to is UNKNOWN, unless --no-passwords is given. A empty field in
+/etc/passwd itself counts too, as that is what is used then, whatever
+/etc/shadow has.
 
 - duplicates :: Two accounts with the same name or UID. UID 0 is left to
 the check above.
@@ -48,8 +50,9 @@ the check above.
 - --absent and --present :: Accounts that must not, or must, be there.
 
 - --system-shells :: System accounts, those under --min-uid, with a
-shell from /etc/shells, so one that can log in. root, sync, shutdown,
-halt, and toor are left out, as are those given by --ignore.
+shell from /etc/shells, read as getusershell does, so one that can log
+in. root, sync, shutdown, halt, and toor are left out, as are those
+given by --ignore.
 
 Other OSes than Linux and FreeBSD are UNKNOWN.
 
@@ -116,7 +119,7 @@ sub check {
 	}
 
 	if ( !$self->opt('no-passwords') ) {
-		my $passwords = $self->passwords;
+		my $passwords = $self->passwords($accounts);
 		if ( !defined($passwords) ) {
 			push( @unknown, 'can not read the passwords, ' . ( $self->os eq 'freebsd' ? $MASTER_PASSWD : $SHADOW ) );
 		} else {
@@ -126,7 +129,7 @@ sub check {
 	}
 
 	if ( $self->opt('system-shells') ) {
-		my %shells  = map { $_ => 1 } grep { m{\A/} } split( /\s+/, read_file( $SHELLS, err_mode => 'quiet' ) // '' );
+		my %shells  = map { $_ => 1 } $self->shells;
 		my %ignored = map { $_ => 1 } ( 'root', 'sync', 'shutdown', 'halt', 'toor', @{ $self->opt('ignore') // [] } );
 		my @can_log_in = map { $_->{name} }
 			grep { $_->{uid} < $self->opt('min-uid') && !$ignored{ $_->{name} } && $shells{ $_->{shell} } }
@@ -151,8 +154,8 @@ sub check {
 =head2 accounts
 
 Returns a array ref of the local accounts, as hash refs of name, uid,
-and shell, in the order they are in the file. Dies if it can not be
-read.
+password, the field as it is in the file, and shell, in the order they
+are in the file. Dies if it can not be read.
 
 =cut
 
@@ -168,7 +171,7 @@ sub accounts {
 		next if $line =~ /\A\s*(?:#|\z)/ || $line =~ /\A[+-]/;
 		my @fields = split( /:/, $line, -1 );
 		next if scalar(@fields) < 7;
-		push( @accounts, { name => $fields[0], uid => $fields[2], shell => $fields[6] } );
+		push( @accounts, { name => $fields[0], uid => $fields[2], password => $fields[1], shell => $fields[6] } );
 	}
 
 	return \@accounts;
@@ -176,25 +179,50 @@ sub accounts {
 
 =head2 passwords
 
-Returns a hash ref of account names to their password fields, or
-undef if they can not be read.
+Returns a hash ref of account names to the password fields that are
+used for them, or undef if the shadow file can not be read.
+
+- accounts :: From L</accounts>, for the fields in passwd itself.
+
+The field is the one from /etc/shadow, or /etc/master.passwd on
+FreeBSD, unless the one in passwd is empty, as the C library and PAM
+go by passwd then, and a empty one there means no password.
+
+    my $passwords = $check->passwords( $check->accounts );
 
 =cut
 
 sub passwords {
-	my ($self) = @_;
+	my ( $self, $accounts ) = @_;
 
 	my $file    = $self->os eq 'freebsd' ? $MASTER_PASSWD : $SHADOW;
 	my $content = read_file( $file, err_mode => 'quiet' ) // return undef;
 
-	my %passwords;
+	my %passwords = map { $_->{name} => $_->{password} } @{ $accounts // [] };
 	foreach my $line ( split( /\n/, $content ) ) {
 		next if $line =~ /\A\s*(?:#|\z)/ || $line =~ /\A[+-]/;
 		my ( $name, $password ) = split( /:/, $line, -1 );
-		$passwords{$name} = $password // '' if defined($name) && $name ne '';
+		next                                if !defined($name) || $name eq '';
+		$passwords{$name} = $password // '' if ( $passwords{$name} // 'x' ) ne '';
 	}
 
 	return \%passwords;
 } ## end sub passwords
+
+=head2 shells
+
+Returns the login shells in /etc/shells, read as getusershell does.
+Each line gives one, the first thing on it starting with a /, and
+lines with a # before that are comments. None if it can not be read.
+
+=cut
+
+sub shells {
+	my ($self) = @_;
+
+	my $content = read_file( $SHELLS, err_mode => 'quiet' ) // '';
+
+	return map { m{\A[^#/]*(/[^\s#]*)} ? $1 : () } split( /\n/, $content );
+}
 
 1;

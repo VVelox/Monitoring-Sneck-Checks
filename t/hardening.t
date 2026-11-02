@@ -163,29 +163,34 @@ alice:x:1001:1001:Alice:/home/alice:/bin/bash
 END
 local $Monitoring::Sneck::Checks::accounts::SHADOW
 	= $write->( 'shadow', "root:\$y\$j9T\$abc:20000:0:99999:7:::\ndaemon:*:20000::::::\nalice:!:20000::::::\n" );
-local $Monitoring::Sneck::Checks::accounts::SHELLS = $write->( 'shells', "# shells\n/bin/sh\n/bin/bash\n" );
+local $Monitoring::Sneck::Checks::accounts::SHELLS
+	= $write->( 'shells', "# shells\n# /bin/zsh is not installed\n  /bin/sh # the default\n/bin/bash\n" );
 $return = $run->( 'accounts', '-s', '-p', 'alice', '-a', 'guest' );
 is( $return->{code},   0,                            'fine' );
 is( $return->{stdout}, "ACCOUNTS OK - 5 accounts\n", 'output' );
+is_deeply( [ Monitoring::Sneck::Checks::accounts->new->shells ], [ '/bin/sh', '/bin/bash' ], 'shells as getusershell' );
+
+# backup has a shell only named in a comment, and nopw a empty field in passwd that shadow does not override
 $write->( 'passwd', <<'END' );
 root:x:0:0:root:/root:/bin/bash
 toor:x:0:0:root:/root:/bin/sh
 daemon:x:1:1:daemon:/usr/sbin:/bin/sh
-backup:x:1:34:backup:/var/backups:/usr/sbin/nologin
+backup:x:1:34:backup:/var/backups:/bin/zsh
 guest:x:1002:1002::/home/guest:/bin/bash
 guest:x:1003:1003::/home/guest:/bin/bash
+nopw::1004:1004::/home/nopw:/usr/sbin/nologin
 END
-$write->( 'shadow', "root:\$y\$j9T\$abc:20000::::::\ntoor:::::::\nguest:::::::\n" );
+$write->( 'shadow', "root:\$y\$j9T\$abc:20000::::::\ntoor:::::::\nguest:::::::\nnopw:\$y\$j9T\$abc:20000::::::\n" );
 is(
 	$run->( 'accounts', '-s', '-p', 'alice', '-a', 'guest' )->{stdout},
-	"ACCOUNTS CRITICAL - 6 accounts, UID 0 for toor, more than one account with the name guest, more than one account with the uid 1, no password for guest, toor, system accounts with a login shell, daemon, there but should not be, guest, missing alice\n",
+	"ACCOUNTS CRITICAL - 7 accounts, UID 0 for toor, more than one account with the name guest, more than one account with the uid 1, no password for guest, nopw, toor, system accounts with a login shell, daemon, there but should not be, guest, missing alice\n",
 	'every problem'
 );
 {
 	local $Monitoring::Sneck::Checks::base::OS = 'freebsd';
 	like(
 		$run->( 'accounts', '-n' )->{stdout},
-		qr/\AACCOUNTS CRITICAL - 6 accounts, more than one account/,
+		qr/\AACCOUNTS CRITICAL - 7 accounts, more than one account/,
 		'toor allowed on FreeBSD'
 	);
 	local $Monitoring::Sneck::Checks::accounts::MASTER_PASSWD = $dir . '/nope';

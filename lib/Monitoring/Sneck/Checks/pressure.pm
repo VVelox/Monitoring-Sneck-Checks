@@ -83,6 +83,10 @@ sub validate {
 	}
 	push( @problems, '--kind must be some or full' )      if $options->{kind}    !~ /\A(?:some|full)\z/;
 	push( @problems, '--average must be 10, 60, or 300' ) if $options->{average} !~ /\A(?:10|60|300)\z/;
+	push( @problems, 'nothing to check, as full is left out for cpu' )
+		if $options->{kind} eq 'full'
+		&& defined( $options->{resource} )
+		&& !grep { $_ ne 'cpu' } @{ $options->{resource} };
 
 	return @problems;
 } ## end sub validate

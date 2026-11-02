@@ -69,6 +69,16 @@ is(
 );
 is( $run->( 'pressure', '-r', 'disk' )->{code}, 3, 'bad --resource' );
 is( $run->( 'pressure', '-a', 5 )->{code},      3, 'bad --average' );
+is(
+	$run->( 'pressure', '-r', 'cpu', '-k', 'full' )->{stderr},
+	"PRESSURE UNKNOWN - nothing to check, as full is left out for cpu\n",
+	'full with only cpu is nothing to check'
+);
+is(
+	$run->( 'pressure', '-r', 'cpu', '-r', 'io', '-k', 'full' )->{stdout},
+	"PRESSURE OK - full stalled over 60 seconds, io 0.50% | io_full=0.50%;20;50;0;100\n",
+	'full with cpu and io checks io'
+);
 unlink( $dir . '/proc/pressure/io' );
 like( $run->('pressure')->{stderr}, qr/no pressure stall information/, 'no PSI' );
 

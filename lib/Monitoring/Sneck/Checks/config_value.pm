@@ -121,10 +121,14 @@ sub check {
 			push( @problems, $name . ' is not set' );
 			next;
 		}
-		push( @seen, $name . ' ' . $value . $source );
+		push( @seen, $name . ' ' . $self->shown($value) . $source );
 		next if $self->expect_met( $value, $comparison, $wanted, !$case );
 		push( @problems,
-			$name . ' is ' . $value . $source . ', wanted ' . $self->expect_wanted( $comparison, $wanted ) );
+				  $name . ' is '
+				. $self->shown($value)
+				. $source
+				. ', wanted '
+				. $self->expect_wanted( $comparison, $wanted ) );
 	} ## end foreach my $expect ( @{ $self->opt('expect') } )
 
 	return $self->finish( $self->CRITICAL, join( ', ', @problems ) ) if defined( $problems[0] );

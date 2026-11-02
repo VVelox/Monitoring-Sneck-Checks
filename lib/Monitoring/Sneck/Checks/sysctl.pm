@@ -91,9 +91,10 @@ sub check {
 			push( @problems, $name . ' is not there' ) if !$self->opt('missing-ok');
 			next;
 		}
-		push( @seen, $name . ' ' . $value );
+		push( @seen, $name . ' ' . $self->shown($value) );
 		next if $self->expect_met( $value, $comparison, $wanted );
-		push( @problems, $name . ' is ' . $value . ', wanted ' . $self->expect_wanted( $comparison, $wanted ) );
+		push( @problems,
+			$name . ' is ' . $self->shown($value) . ', wanted ' . $self->expect_wanted( $comparison, $wanted ) );
 	} ## end foreach my $expect ( @{ $self->opt('expect') } )
 
 	return $self->finish( $self->CRITICAL, join( ', ', @problems ) ) if defined( $problems[0] );

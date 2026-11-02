@@ -912,8 +912,9 @@ Checks a value against a expect.
 
 - wanted :: The value wanted. For = and !=, values split by |, any of
 which is enough for =, and none of which may match for !=. Runs of
-space in them are squashed. The others compare as numbers, and a value
-that is not a number does not meet them.
+space in them are squashed. A empty one, as all of "name=" or the last
+of "name=a|", is met by a empty value. The others compare as numbers,
+and a value that is not a number does not meet them.
 
 - no_case :: 1 to compare = and != without case.
 
@@ -921,6 +922,7 @@ Returns 1 if it is met, else 0.
 
     $check->expect_met( '1', '=', '1|2' );    # 1
     $check->expect_met( '5', '<', '3' );      # 0
+    $check->expect_met( '',  '=', '' );       # 1
 
 =cut
 
@@ -929,7 +931,7 @@ sub expect_met {
 
 	if ( $comparison eq '=' || $comparison eq '!=' ) {
 		my $have  = $no_case ? lc($value) : $value;
-		my $found = grep { ( $no_case ? lc($_) : $_ ) eq $have } map { s/\s+/ /gr } split( /\|/, $wanted );
+		my $found = grep { ( $no_case ? lc($_) : $_ ) eq $have } map { s/\s+/ /gr } _split_wanted($wanted);
 		return ( $comparison eq '=' ? $found : !$found ) ? 1 : 0;
 	}
 	return 0 if $value !~ /\A-?[0-9]+(?:\.[0-9]+)?\z/;
@@ -942,17 +944,53 @@ sub expect_met {
 
 =head2 expect_wanted
 
-Returns what a expect wants as text, for messages.
+Returns what a expect wants as text, for messages, a empty value shown
+as "".
 
     $check->expect_wanted( '>=', '1' );     # 'at least 1'
     $check->expect_wanted( '=',  'a|b' );   # 'a or b'
+    $check->expect_wanted( '=',  '' );      # '""'
 
 =cut
 
 sub expect_wanted {
 	my ( $self, $comparison, $wanted ) = @_;
 
-	return $EXPECT_WORDS{$comparison} . join( ' or ', split( /\|/, $wanted ) );
+	return $EXPECT_WORDS{$comparison} . join( ' or ', map { $self->shown($_) } _split_wanted($wanted) );
+}
+
+=head2 shown
+
+Returns a value as it is to be shown in messages, which is as it is,
+other than a empty one being "".
+
+    $check->shown('022');    # '022'
+    $check->shown('');       # '""'
+
+=cut
+
+sub shown {
+	return $_[1] eq '' ? '""' : $_[1];
+}
+
+# Splits what a expect wants on |, keeping empty ones, which split on
+# its own drops, as name= and name=a| want a empty value.
+#
+# Args...
+#
+#     - wanted :: The value wanted, such as 'a|b', 'a|', or ''.
+#
+# Returns the list of values, at least one.
+#
+# Example...
+#
+#     _split_wanted('a|b');    # ( 'a', 'b' )
+#     _split_wanted('a|');     # ( 'a', '' )
+#     _split_wanted('');       # ( '' )
+sub _split_wanted {
+	my ($wanted) = @_;
+
+	return $wanted eq '' ? ('') : split( /\|/, $wanted, -1 );
 }
 
 =head2 read_state

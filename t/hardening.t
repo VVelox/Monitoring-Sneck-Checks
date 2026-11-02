@@ -59,6 +59,13 @@ is(
 	'not as wanted, a / name'
 );
 is( $run->( 'sysctl', '-e', 'kernel.nope=1', '-m' )->{stdout}, "SYSCTL OK - none of them are there\n", '--missing-ok' );
+$write->( 'proc/sys/kernel/empty', "\n" );
+is( $run->( 'sysctl', '-e', 'kernel.empty=' )->{stdout}, "SYSCTL OK - kernel.empty \"\"\n", 'a empty value wanted' );
+is(
+	$run->( 'sysctl', '-e', 'kernel.empty=x' )->{stdout},
+	"SYSCTL CRITICAL - kernel.empty is \"\", wanted x\n",
+	'a empty value not wanted'
+);
 is(
 	$run->( 'sysctl', '-e', 'net/../../../etc/passwd=1' )->{stdout},
 	"SYSCTL CRITICAL - net/../../../etc/passwd is not there\n",

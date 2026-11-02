@@ -18,7 +18,7 @@ my $run = sub { return Monitoring::Sneck::Checks->run( check => 'config_value', 
 
 my $login_defs = $write->(
 	'login.defs',
-	"# login.defs\nPASS_MAX_DAYS\t99999\nPASS_MIN_DAYS 1 # at least a day\nUMASK\t\t022\nENCRYPT_METHOD YESCRYPT\n"
+	"# login.defs\nPASS_MAX_DAYS\t99999\nPASS_MIN_DAYS 1 # at least a day\nUMASK\t\t022\nENCRYPT_METHOD YESCRYPT\nEMPTY_THING =\n"
 );
 is(
 	$run->(
@@ -35,6 +35,16 @@ is(
 );
 is( $run->( '-f', $login_defs, '-e', 'LOGIN_RETRIES<=5', '-d', 'LOGIN_RETRIES=5' )->{stdout},
 	"CONFIG_VALUE OK - LOGIN_RETRIES 5 by default\n", '--default' );
+is(
+	$run->( '-f', $login_defs, '-e', 'EMPTY_THING=', '-e', 'EMPTY_THING=a|' )->{stdout},
+	"CONFIG_VALUE OK - EMPTY_THING \"\", EMPTY_THING \"\"\n",
+	'a empty value wanted and had'
+);
+is(
+	$run->( '-f', $login_defs, '-e', 'EMPTY_THING!=', '-e', 'UMASK=' )->{stdout},
+	"CONFIG_VALUE CRITICAL - EMPTY_THING is \"\", wanted anything but \"\", UMASK is 022, wanted \"\"\n",
+	'a empty value not wanted, or wanted and not had'
+);
 
 my $rc_conf = $write->(
 	'rc.conf', qq{sshd_enable="YES"\nsendmail_enable="NONE"\nifconfig_em0="inet 192.0.2.10/24"\nsshd_enable="NO"\n}

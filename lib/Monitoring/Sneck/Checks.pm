@@ -228,9 +228,12 @@ sub run {
 	my $code;
 	my $died;
 	{
-		# set outside of the eval, so a alarm going off as the eval ends still has a handler
-		local $SIG{ALRM} = sub { die( 'timed out after ' . $timeout . " seconds\n" ) };
+		# the handler that dies is only there inside the eval, where the die is caught. A alarm going off
+		# as the eval ends, as when the check died on its own just before it would have, must still have a
+		# handler, or it would end the process, but one that does nothing, so nothing gets out of here
+		local $SIG{ALRM} = sub { };
 		$code = eval {
+			local $SIG{ALRM} = sub { die( 'timed out after ' . $timeout . " seconds\n" ) };
 			local *STDOUT;
 			local *STDERR;
 			open( STDOUT, '>', \$stray_stdout );

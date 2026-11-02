@@ -65,6 +65,24 @@ $return = $run->( check => 'testing', args => [ '--sleep', 3 ], timeout => 0.5 )
 is( $return->{code}, 3, 'timing out is UNKNOWN' );
 like( $return->{stderr}, qr/timed out after 0.5 seconds/, 'and says so' );
 is( alarm(0), 0, 'no alarm left behind' );
+
+# a alarm going off right as the eval ends, as after the check died on its own, must not get out of run,
+# with the cancel after the eval standing in for it going off then
+{
+	no warnings 'redefine';
+	my $armed = 0;
+	local *Time::HiRes::alarm = sub {
+		my ($seconds) = @_;
+		if ($seconds) { $armed = 1; return 0 }
+		return 0 if !$armed;
+		$armed = 0;
+		$SIG{ALRM}->();
+		return 0;
+	};
+	$return = eval { $run->( check => 'testing', args => [ '--die', 'it broke' ], timeout => 0.5 ) };
+	is( $@,                          '', 'a alarm going off as the eval ends stays in run' );
+	is( ( $return // {} )->{stderr}, "TESTING UNKNOWN - it broke\n", 'and what the check died of is what is said' );
+}
 my $started = time;
 $return = $run->(
 	check   => 'testing',

@@ -57,9 +57,14 @@ May be given more than once. Required.
 - -d, --default :: "Name=value", what sshd uses if it is not set. May
 be given more than once.
 
+- -I, --include-dir :: The directory relative Include paths are under.
+sshd takes them from its own config directory, wherever the file it
+was given is, so give this when checking a copy kept elsewhere.
+Default :: the directory of --file
+
 =cut
 
-sub option_spec { return ( 'file|f=s', 'expect|e=s@', 'default|d=s@' ) }
+sub option_spec { return ( 'file|f=s', 'expect|e=s@', 'default|d=s@', 'include-dir|I=s' ) }
 
 sub defaults { return { file => '/etc/ssh/sshd_config' } }
 
@@ -163,7 +168,7 @@ sub read_config {
 		}
 		if ( lc($name) eq 'include' ) {
 			foreach my $pattern ( split( /\s+/, $value ) ) {
-				$pattern = dirname( $self->opt('file') ) . '/' . $pattern if $pattern !~ m{\A/};
+				$pattern = $self->include_dir . '/' . $pattern if $pattern !~ m{\A/};
 				foreach my $included ( sort( bsd_glob($pattern) ) ) {
 					my $problem = $self->read_config( $included, $settings, $depth + 1 );
 					return $problem if defined($problem);
@@ -176,6 +181,19 @@ sub read_config {
 
 	return undef;
 } ## end sub read_config
+
+=head2 include_dir
+
+Returns the directory relative Include paths are under, --include-dir,
+or the directory of --file.
+
+=cut
+
+sub include_dir {
+	my ($self) = @_;
+
+	return $self->opt('include-dir') // dirname( $self->opt('file') );
+}
 
 # Normalizes a value for comparing, lower casing it, dropping quotes
 # around it, and squashing runs of space.

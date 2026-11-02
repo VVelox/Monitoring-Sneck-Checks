@@ -90,6 +90,11 @@ like(
 	qr/X11Forwarding is yes by default, not no/,
 	'--default not allowed'
 );
+like(
+	$run->( 'sshd_config', '-f', $sshd, '-I', $dir . '/nowhere', '-e', 'PermitRootLogin=no' )->{stdout},
+	qr/\ASSHD_CONFIG CRITICAL - PermitRootLogin is yes, not no\n\z/,
+	'--include-dir, under which the include is not found'
+);
 like( $run->( 'sshd_config', '-f', $dir . '/nope', '-e', 'A=b' )->{stdout},
 	qr/\ASSHD_CONFIG CRITICAL - can not read/, 'missing' );
 $write->( 'ssh/loop', "Include loop\n" );

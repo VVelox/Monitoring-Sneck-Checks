@@ -33,6 +33,8 @@ inc/
 /MANIFEST.bak
 /pm_to_blib
 /*.zip
+# where Makefile.PL has make put the scripts from src_bin
+/bin/
 
 # Carton/Carmel
 /local/

@@ -72,8 +72,9 @@ sneck_check http -H www.example.org -S -w 1 -c 2
 
 Those that look at the host, such as disk, interface, listening, and
 sysctl, work on Linux and FreeBSD, except neighbors, oom, pressure,
-and systemd_failed, which are Linux only, debsecan, which is Debian
-only, and jails and pkg_audit, which are FreeBSD only.
+and systemd_failed, which are Linux only, as is procs with
+`--fd-warning` or `--fd-critical`, debsecan, which is Debian only, and
+jails and pkg_audit, which are FreeBSD only.
 
 Each check's POD lists its options, such as `perldoc
 Monitoring::Sneck::Checks::http`.

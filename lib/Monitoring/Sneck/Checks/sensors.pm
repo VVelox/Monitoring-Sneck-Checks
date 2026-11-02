@@ -58,7 +58,8 @@ as is finding no sensors.
 
 On Linux each sensor is named by its chip and its label, such as
 "coretemp Core 0", or its file, such as "nct6775 fan2". On FreeBSD they
-are cpuN and tzN. Every one with a reading goes into the perfdata.
+are cpuN and tzN. Every one with a reading goes into the perfdata,
+with what it is checked against as its ranges.
 
 =head1 OPTIONS
 
@@ -119,9 +120,7 @@ sub check {
 		push( @codes, $code );
 		push( @problems, $sensor->{name} . ' ' . $why ) if $code != $self->OK;
 		next if !defined( $sensor->{value} );
-		my ( $warning, $critical ) = ( $sensor->{max}, $sensor->{crit} );
-		( $warning, $critical ) = ( $self->opt('warning'), $self->opt('critical') )
-			if $sensor->{type} eq 'temp' && $self->user_limits;
+		my ( $warning, $critical ) = $self->perf_ranges($sensor);
 		$self->perfdata(
 			label    => $sensor->{name},
 			value    => $sensor->{value},
@@ -135,6 +134,36 @@ sub check {
 
 	return $self->finish( $self->worst(@codes), $message );
 } ## end sub check
+
+=head2 perf_ranges
+
+Returns the warning and critical ranges for a sensor's perfdata, as
+it is checked under L</DESCRIPTION>. For a temperature, max and crit,
+or --warning and --critical if given. For a fan, critical is under
+min. For a voltage, warning is outside min to max. Any not known is
+undef.
+
+- sensor :: As for L</sensor_status>.
+
+    my ( $warning, $critical ) = $check->perf_ranges( { type => 'fan', min => 300 } );
+    # ( undef, '300:' )
+
+=cut
+
+sub perf_ranges {
+	my ( $self, $sensor ) = @_;
+
+	if ( $sensor->{type} eq 'temp' ) {
+		return ( $self->opt('warning'), $self->opt('critical') ) if $self->user_limits;
+		return ( $sensor->{max},        $sensor->{crit} );
+	}
+	if ( $sensor->{type} eq 'fan' ) {
+		return ( undef, defined( $sensor->{min} ) ? $sensor->{min} . ':' : undef );
+	}
+	return ( undef, undef ) if !defined( $sensor->{min} ) && !defined( $sensor->{max} );
+
+	return ( ( $sensor->{min} // '~' ) . ':' . ( $sensor->{max} // '' ), undef );
+} ## end sub perf_ranges
 
 =head2 user_limits
 

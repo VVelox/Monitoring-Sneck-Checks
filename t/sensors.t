@@ -54,8 +54,8 @@ my $return = $run->();
 is( $return->{code}, 0, 'all OK' );
 is(
 	$return->{stdout},
-	"SENSORS OK - 6 sensors | 'coretemp Package id 0'=45;84;100 'coretemp Core 0'=47;84;100 'coretemp temp10'=40 'nct6775 fan1'=1200 'nct6775 in0'=1.104;1.2 'nct6775 in1'=0\n",
-	'output, temp10 after temp2'
+	"SENSORS OK - 6 sensors | 'coretemp Package id 0'=45;84;100 'coretemp Core 0'=47;84;100 'coretemp temp10'=40 'nct6775 fan1'=1200;;300: 'nct6775 in0'=1.104;1:1.2 'nct6775 in1'=0\n",
+	'output, temp10 after temp2, fan and voltage limits as ranges'
 ) || diag( $return->{stdout} );
 is(
 	$run->( '-s', '^coretemp', '-x', 'Core' )->{stdout},

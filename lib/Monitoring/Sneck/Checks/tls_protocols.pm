@@ -60,6 +60,9 @@ Default :: --hostname
 
 - -s, --starttls :: Ask for TLS through smtp, imap, pop3, ftp, or ldap.
 
+- --helo-name :: The name to give in EHLO, for --starttls smtp.
+Default :: the host name of this host
+
 - -r, --refuse :: A version it must not take, SSLv3, TLSv1, TLSv1_1,
 TLSv1_2, or TLSv1_3. May be given more than once.
 Default :: TLSv1 and TLSv1_1, unless --accept is given
@@ -68,7 +71,9 @@ Default :: TLSv1 and TLSv1_1, unless --accept is given
 
 =cut
 
-sub option_spec { return ( 'hostname|H=s', 'port|p=i', 'sni|n=s', 'starttls|s=s', 'refuse|r=s@', 'accept|a=s@' ) }
+sub option_spec {
+	return ( 'hostname|H=s', 'port|p=i', 'sni|n=s', 'starttls|s=s', 'helo-name=s', 'refuse|r=s@', 'accept|a=s@' );
+}
 
 sub required { return ('hostname') }
 
@@ -77,7 +82,7 @@ sub validate {
 
 	require Monitoring::Sneck::Checks::https_cert;
 	my @problems;
-	foreach my $name ( 'hostname', 'sni' ) {
+	foreach my $name ( 'hostname', 'sni', 'helo-name' ) {
 		push( @problems, '--' . $name . ' "' . $options->{$name} . '" is not a IP or hostname' )
 			if defined( $options->{$name} ) && !$self->is_host( $options->{$name} );
 	}

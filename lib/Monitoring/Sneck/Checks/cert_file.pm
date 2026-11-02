@@ -4,6 +4,7 @@ use 5.014;
 use strict;
 use warnings;
 use parent 'Monitoring::Sneck::Checks::base';
+use Fcntl qw(S_IROTH);
 
 =head1 NAME
 
@@ -181,7 +182,7 @@ sub key_status {
 
 	return ( $self->CRITICAL, $key . ' is not a key, or is encrypted' ) if !$loaded;
 	return ( $self->CRITICAL, $key . ' does not match' )                if !$matches;
-	return ( $self->WARNING,  $key . ' is readable by everyone' )       if $stat[2] & 04;
+	return ( $self->WARNING,  $key . ' is readable by everyone' )       if $stat[2] & S_IROTH();
 
 	return ( $self->OK, undef );
 } ## end sub key_status

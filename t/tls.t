@@ -58,6 +58,15 @@ my %starttls = (
 		<$client>;
 		print $client "250-mail.example.org\r\n250 8BITMIME\r\n";
 	},
+	smtp_helo => sub {
+		my ($client) = @_;
+		print $client "220 ready\r\n";
+		<$client> eq "EHLO client.example.org\r\n" or return;
+		print $client "250-mail.example.org\r\n250 STARTTLS\r\n";
+		<$client> eq "STARTTLS\r\n" or return;
+		print $client "220 go ahead\r\n";
+		$upgrade->($client);
+	},
 	imap => sub {
 		my ($client) = @_;
 		print $client "* OK IMAP4rev1 ready\r\n";
@@ -208,6 +217,17 @@ like(
 	'STARTTLS not connecting'
 );
 is( $run->( 'https_cert', '-H', '127.0.0.1', '-s', 'gopher' )->{code}, 3, 'bad --starttls' );
+my @helo = ( '-H', '127.0.0.1', '-p', $starttls_ports{smtp_helo}, '-s', 'smtp', '--helo-name', 'client.example.org' );
+is( $run->( 'https_cert', @helo, '--ca-file', $paths->{ca} . '.pem', '-w', 10, '-c', 5 )->{code},
+	0, '--helo-name given in EHLO' );
+like(
+	$run->( 'https_cert', '-H', '127.0.0.1', '-p', $starttls_ports{smtp_helo}, '-s', 'smtp' )->{stdout},
+	qr/smtp EHLO got ""/,
+	'a server wanting a other name'
+);
+is( $run->( 'tls_protocols', @helo, '-a', 'TLSv1_2' )->{code}, 0, 'tls_protocols --helo-name' );
+is( $run->( 'https_cert', '-H', '127.0.0.1', '-s', 'smtp', '--helo-name', 'not a host' )->{code}, 3,
+	'bad --helo-name' );
 
 # smtp over TLS, noting what it asks for through SNI
 my %sni;

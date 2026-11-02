@@ -52,6 +52,9 @@ Default :: 443, or for --starttls, the protocol's
 
 - -s, --starttls :: Ask for TLS through smtp, imap, pop3, ftp, or ldap.
 
+- --helo-name :: The name to give in EHLO, for --starttls smtp.
+Default :: the host name of this host
+
 - -n, --sni :: The name to ask for and check the certificate covers.
 Default :: --hostname
 
@@ -70,7 +73,7 @@ name.
 
 sub option_spec {
 	return (
-		'hostname|H=s', 'port|p=i',     'sni|n=s',  'starttls|s=s',
+		'hostname|H=s', 'port|p=i',     'sni|n=s',  'starttls|s=s', 'helo-name=s',
 		'warning|w=i',  'critical|c=i', 'insecure', 'ca-file=s'
 	);
 }
@@ -83,7 +86,7 @@ sub validate {
 	my ( $self, $options ) = @_;
 
 	my @problems;
-	foreach my $name ( 'hostname', 'sni' ) {
+	foreach my $name ( 'hostname', 'sni', 'helo-name' ) {
 		push( @problems, '--' . $name . ' "' . $options->{$name} . '" is not a IP or hostname' )
 			if defined( $options->{$name} ) && !$self->is_host( $options->{$name} );
 	}
@@ -195,7 +198,7 @@ sub starttls {
 		return 'greeted with ' . $first->($greeting) if $greeting !~ /^220 /m;
 		if ( $protocol eq 'smtp' ) {
 			require Sys::Hostname;
-			print $socket 'EHLO ' . Sys::Hostname::hostname() . "\r\n";
+			print $socket 'EHLO ' . ( $self->opt('helo-name') // Sys::Hostname::hostname() ) . "\r\n";
 			my $ehlo = $self->read_socket( $socket, $coded );
 			return 'EHLO got ' . $first->($ehlo) if $ehlo !~ /^250 /m;
 			return 'does not offer STARTTLS'     if $ehlo !~ /^250[ -]STARTTLS\s*$/mi;

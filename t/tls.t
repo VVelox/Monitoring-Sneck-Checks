@@ -22,18 +22,25 @@ END { kill( 'TERM', @pids ) if @pids && $$ == $parent_pid }
 
 my ( $plain_port, $plain_pid )
 	= TestServer::start( greeting => "220 test ready\r\n", answers => { PING => "+PONG\r\n" } );
-my ( $tls_port, $tls_pid ) = TestServer::start(
-	greeting => "* OK ready\r\n",
-	ssl      => { SSL_cert_file => $paths->{www} . '.pem', SSL_key_file => $paths->{www} . '.key' }
+my %cert = ( SSL_cert_file => $paths->{www} . '.pem', SSL_key_file => $paths->{www} . '.key' );
+my ( $tls_port,   $tls_pid )   = TestServer::start( greeting => "* OK ready\r\n", ssl => \%cert );
+my ( $smtps_port, $smtps_pid ) = TestServer::start(
+	greeting => "220 mail.example.org ESMTP\r\n",
+	answers  => { 'EHLO client.example.org' => "250-mail.example.org\r\n250 8BITMIME\r\n" },
+	ssl      => \%cert
 );
-push( @pids, $plain_pid, $tls_pid );
+push( @pids, $plain_pid, $tls_pid, $smtps_pid );
 
-# STARTTLS servers, each answering as the protocol does, then going TLS
-my %server_ssl = ( SSL_server => 1, SSL_cert_file => $paths->{www} . '.pem', SSL_key_file => $paths->{www} . '.key' );
+# STARTTLS servers, each answering as the protocol does, then going TLS, and talking SMTP over it
+# for the smtp check, the others closing once they have the certificate
+my %server_ssl = ( SSL_server => 1, %cert );
 my $upgrade    = sub {
 	my ($client) = @_;
 	IO::Socket::SSL->start_SSL( $client, %server_ssl ) or return;
-	sysread( $client, my $buffer, 10 );
+	while ( my $line = <$client> ) {
+		last                                                     if $line =~ /\AQUIT/;
+		print $client "250-mail.example.org\r\n250 8BITMIME\r\n" if $line =~ /\AEHLO /;
+	}
 };
 my %starttls = (
 	smtp => sub {
@@ -201,5 +208,36 @@ like(
 	'STARTTLS not connecting'
 );
 is( $run->( 'https_cert', '-H', '127.0.0.1', '-s', 'gopher' )->{code}, 3, 'bad --starttls' );
+
+# smtp over TLS, noting what it asks for through SNI
+my %sni;
+{
+	no warnings 'redefine';
+	my ( $new, $start_ssl ) = ( IO::Socket::SSL->can('new'), IO::Socket::SSL->can('start_SSL') );
+	local *IO::Socket::SSL::new = sub { my ( $class, %args ) = @_; $sni{new} = $args{SSL_hostname}; return $new->(@_) };
+	local *IO::Socket::SSL::start_SSL = sub {
+		my ( $class, $socket, %args ) = @_;
+		$sni{start_SSL} = $args{SSL_hostname};
+		return $start_ssl->(@_);
+	};
+	my @smtp = ( 'smtp', '-H', '127.0.0.1', '--ca-file', $paths->{ca} . '.pem', '-n', 'client.example.org' );
+	$return = $run->( @smtp, '-p', $smtps_port, '-S' );
+	is( $return->{code}, 0, 'smtp over TLS' ) || diag( $return->{combined} );
+	like( $return->{stdout},
+		qr/\ASMTP OK - 127.0.0.1:$smtps_port 220 mail.example.org ESMTP, in [0-9.]+ seconds \| time=/, 'output' );
+	is( $sni{new}, '', 'no SNI for a IP' );
+	$return = $run->( @smtp, '-p', $starttls_ports{smtp}, '-s' );
+	is( $return->{code}, 0, 'smtp through STARTTLS' ) || diag( $return->{combined} );
+	like( $return->{stdout}, qr/ seconds, over STARTTLS \| time=/, 'and says so' );
+	is( $sni{start_SSL}, '', 'no SNI for a IP through STARTTLS' );
+	like(
+		$run->( 'smtp', '-H', '127.0.0.1', '-p', $smtps_port, '-S', '-t', 2 )->{stdout},
+		qr/\ASMTP CRITICAL - 127.0.0.1:$smtps_port, .*verify failed/,
+		'TLS with a untrusted certificate'
+	);
+	local *IO::Socket::SSL::new = sub { my ( $class, %args ) = @_; $sni{new} = $args{SSL_hostname}; return undef };
+	$run->( 'smtp', '-H', 'mail.example.org', '-S', '--insecure' );
+	is( $sni{new}, 'mail.example.org', 'SNI with the name, --insecure or not' );
+}
 
 done_testing();

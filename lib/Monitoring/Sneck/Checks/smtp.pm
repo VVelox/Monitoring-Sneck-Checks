@@ -40,7 +40,8 @@ it expires.
 
 =head1 OPTIONS
 
-- -H, --hostname :: The host. Required.
+- -H, --hostname :: The host, and the name asked for through SNI,
+unless it is a IP. Required.
 
 - -p, --port :: The port.
 Default :: 25, or 465 with --ssl
@@ -106,12 +107,16 @@ sub check {
 	require IO::Socket::SSL;
 	require IO::Socket::IP;
 	require Sys::Hostname;
+	require Data::Validate::IP;
+	my $host  = $self->opt('hostname');
 	my $port  = $self->opt('port') // ( $self->opt('ssl') ? 465 : 25 );
-	my $where = $self->opt('hostname') . ':' . $port;
+	my $where = $host . ':' . $port;
 	my %ssl   = ( SSL_verify_mode => $self->opt('insecure') ? 0 : 1, Timeout => $self->timeout );
+
+	# SNI does not take a IP, and is set either way, as start_SSL has no PeerHost to take it from
+	$ssl{SSL_hostname} = Data::Validate::IP::is_ip($host) ? '' : $host;
 	if ( !$self->opt('insecure') ) {
-		$ssl{SSL_hostname}        = $self->opt('hostname');
-		$ssl{SSL_verifycn_name}   = $self->opt('hostname');
+		$ssl{SSL_verifycn_name}   = $host;
 		$ssl{SSL_verifycn_scheme} = 'smtp';
 	}
 	$ssl{SSL_ca_file} = $self->opt('ca-file') if defined( $self->opt('ca-file') );

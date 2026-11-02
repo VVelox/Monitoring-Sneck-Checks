@@ -161,6 +161,45 @@ lookups in the C library, so the first is what is relied on.
 
 =head1 METHODS
 
+=head2 load
+
+Loads a check, which run does for itself. For when the module is
+wanted without running it, such as for its POD. Dies if it can not be
+loaded, saying why.
+
+- check :: The name of the check, as for L</run>.
+
+Returns the name of the module, such as Monitoring::Sneck::Checks::http.
+
+    my $module = Monitoring::Sneck::Checks->load('http');
+    my $pod    = $INC{'Monitoring/Sneck/Checks/http.pm'};
+
+=cut
+
+sub load {
+	my ( $class, $name ) = @_;
+
+	if ( !defined($name) || ref($name) || $name !~ /\A[a-z][a-z0-9_]*\z/ ) {
+		die(      'check name "'
+				. ( $name // '' )
+				. '" is not valid, it must be a-z, 0-9, and _, starting with a letter'
+				. "\n" );
+	}
+	if ( $name eq 'base' ) {
+		die("base is what checks are built on, not a check\n");
+	}
+
+	my $module = 'Monitoring::Sneck::Checks::' . $name;
+	if ( !eval { require( 'Monitoring/Sneck/Checks/' . $name . '.pm' ); 1 } ) {
+		die( 'failed to load ' . $module . ', ' . $@ );
+	}
+	if ( !$module->isa('Monitoring::Sneck::Checks::base') ) {
+		die( $module . " is not a check, as it is not a Monitoring::Sneck::Checks::base\n" );
+	}
+
+	return $module;
+} ## end sub load
+
 =head2 run
 
 Runs a check.
@@ -200,23 +239,9 @@ sub run {
 	my ( $class, %opts ) = @_;
 
 	my %return = ( code => -1, stdout => '', stderr => '', combined => '' );
-	my $name   = $opts{check};
-	if ( !defined($name) || ref($name) || $name !~ /\A[a-z][a-z0-9_]*\z/ ) {
-		return _not_loaded( \%return,
-				  'check name "'
-				. ( $name // '' )
-				. '" is not valid, it must be a-z, 0-9, and _, starting with a letter' );
-	}
-	if ( $name eq 'base' ) {
-		return _not_loaded( \%return, 'base is what checks are built on, not a check' );
-	}
-
-	my $module = 'Monitoring::Sneck::Checks::' . $name;
-	if ( !eval { require( 'Monitoring/Sneck/Checks/' . $name . '.pm' ); 1 } ) {
-		return _not_loaded( \%return, 'failed to load ' . $module . ', ' . $@ );
-	}
-	if ( !$module->isa('Monitoring::Sneck::Checks::base') ) {
-		return _not_loaded( \%return, $module . ' is not a check, as it is not a Monitoring::Sneck::Checks::base' );
+	my $module = eval { $class->load( $opts{check} ) };
+	if ( !defined($module) ) {
+		return _not_loaded( \%return, $@ );
 	}
 
 	my $timeout = $opts{timeout} // $TIMEOUT;

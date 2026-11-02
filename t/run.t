@@ -27,6 +27,11 @@ foreach my $bad (
 	is( $return->{combined}, $return->{stderr}, 'combined is stderr' );
 	is( $return->{stdout},   '',                'nothing on stdout' );
 } ## end foreach my $bad ( [ 'base', qr/base is what checks are built on/...])
+# load on its own, as sneck_check uses it for --help
+is( Monitoring::Sneck::Checks->load('testing'), 'Monitoring::Sneck::Checks::testing', 'load returns the module' );
+ok( !eval { Monitoring::Sneck::Checks->load('base'); 1 }, 'load dies on base' );
+like( $@, qr/base is what checks are built on/, 'and says why' );
+
 my $return = $run->( check => 'testing', args => q{--out 'unbalanced} );
 is( $return->{code},   3,                                                 'unbalanced quotes in args are UNKNOWN' );
 is( $return->{stderr}, "TESTING UNKNOWN - args have unbalanced quotes\n", 'and says so' );

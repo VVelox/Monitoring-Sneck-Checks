@@ -14,7 +14,9 @@ sneck_check - runs a Monitoring::Sneck::Checks check from the shell
 
 sneck_check [B<-t> <seconds>] [B<-a>] <check> [<args>...]
 
-sneck_check B<-h>
+sneck_check B<-h>|B<--help> [<check>]
+
+sneck_check <check> B<-h>|B<--help>
 
 =head1 DESCRIPTION
 
@@ -34,23 +36,50 @@ Default :: 30
 
 Print stdout and then stderr, labeled, instead of the two combined.
 
-=head2 -h
+=head2 -h, --help
 
-Print this.
+Print this, or the docs for the check if one is given, what it is for
+and the options it takes. Before or after the check is the same.
 
 =head1 EXAMPLES
 
     sneck_check http -H www.example.org -S -w 1 -c 2
     sneck_check -t 10 https_cert -H www.example.org -w 30 -c 14
+    sneck_check --help https_cert
 
 =cut
 
 my $timeout = 30;
 my $apart;
 my $help;
-GetOptions( 't=s' => \$timeout, 'a' => \$apart, 'h' => \$help ) or pod2usage( -exitval => 3, -verbose => 1 );
-pod2usage( -exitval => 0, -verbose => 2 ) if $help;
+GetOptions( 't=s' => \$timeout, 'a' => \$apart, 'help|h' => \$help ) or pod2usage( -exitval => 3, -verbose => 1 );
 my $check = shift(@ARGV);
+
+# require_order leaves everything after the check alone, so a -h after it is looked for here
+if ( defined($check) && grep { $_ eq '-h' || $_ eq '--help' } @ARGV ) {
+	$help = 1;
+}
+if ($help) {
+	pod2usage( -exitval => 0, -verbose => 2 ) if !defined($check);
+	my $module = eval { Monitoring::Sneck::Checks->load($check) };
+	if ( !defined($module) ) {
+		print STDERR $@;
+		exit(3);
+	}
+	my $file = $INC{ 'Monitoring/Sneck/Checks/' . $check . '.pm' };
+	pod2usage(
+		-input    => $file,
+		-exitval  => 'NOEXIT',
+		-verbose  => 99,
+		-sections => 'NAME|SYNOPSIS|DESCRIPTION|OPTIONS'
+	);
+	pod2usage(
+		-input    => $INC{'Monitoring/Sneck/Checks/base.pm'},
+		-exitval  => 0,
+		-verbose  => 99,
+		-sections => 'COMMON OPTIONS'
+	);
+} ## end if ($help)
 pod2usage( -exitval => 3, -verbose => 1 ) if !defined($check);
 
 my $return = Monitoring::Sneck::Checks->run( check => $check, args => [@ARGV], timeout => $timeout );

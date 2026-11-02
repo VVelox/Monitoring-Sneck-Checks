@@ -806,6 +806,11 @@ Runs a command, without a shell, and waits for it, with stdin from
 Returns its exit code and its stdout and stderr together. A command
 killed by a signal has a exit of 128 plus the signal.
 
+If the check times out while the command runs, the command, and
+anything it started, is sent TERM, then KILL if it is still there half
+a second later, so a hung command does not hold the check up past its
+timeout. For that it is run in a process group of its own.
+
     my ( $exit, $output ) = $check->run_command( '/usr/sbin/pkg', 'audit' );
 
 =cut
@@ -817,6 +822,8 @@ sub run_command {
 	# pointed at a in-memory handle, so the rest is done on fds as well
 	my $pid = open( my $out, '-|' ) // die( 'can not fork for ' . $command[0] . ', ' . $! . "\n" );
 	if ( !$pid ) {
+		# its own process group, so _stop_command can take anything it starts down with it
+		POSIX::setpgid( 0, 0 );
 		POSIX::dup2( 1, 2 );
 		my $null = POSIX::open( '/dev/null', POSIX::O_RDONLY() );
 		POSIX::dup2( $null, 0 ) if defined($null);
@@ -824,15 +831,55 @@ sub run_command {
 		my $why = "\0" . 'can not run ' . $command[0] . ', ' . $!;
 		POSIX::write( 1, $why, length($why) );
 		POSIX::_exit(127);
+	} ## end if ( !$pid )
+
+	# the timeout alarm dies out of the read, and closing the pipe waits for the command,
+	# so a hung one is stopped first or the close would wait as long as it does
+	my $output = eval { local $/; <$out> };
+	if ( $@ ne '' ) {
+		my $died = $@;
+		_stop_command($pid);
+		close($out);
+		die($died);
 	}
-	my $output = do { local $/; <$out> }
-		// '';
+	$output //= '';
 	close($out);
 	my $exit = ( $? & 127 ) ? 128 + ( $? & 127 ) : $? >> 8;
 	die( substr( $output, 1 ) . "\n" ) if $exit == 127 && $output =~ /\A\0can not run /;
 
 	return ( $exit, $output );
 } ## end sub run_command
+
+# Stops a command run_command started, once the check timed out while
+# waiting on it. TERM first, then KILL if it has not gone after half a
+# second, so closing the pipe to it, which waits for it, can not hang.
+# Both go to its process group as well as to it, as the group takes
+# anything it started with it, and it may not have made the group yet.
+#
+# Args...
+#
+#     - pid :: The process ID of the command.
+#
+# Returns nothing. A command that exits on TERM is reaped here, which
+# the close after it copes with.
+#
+# Example...
+#
+#     _stop_command($pid);
+sub _stop_command {
+	my ($pid) = @_;
+
+	kill( 'TERM',  $pid );
+	kill( '-TERM', $pid );
+	foreach ( 1 .. 10 ) {
+		return if waitpid( $pid, POSIX::WNOHANG() ) != 0;
+		Time::HiRes::sleep(0.05);
+	}
+	kill( 'KILL',  $pid );
+	kill( '-KILL', $pid );
+
+	return;
+} ## end sub _stop_command
 
 =head2 split_expect
 

@@ -65,6 +65,20 @@ $return = $run->( check => 'testing', args => [ '--sleep', 3 ], timeout => 0.5 )
 is( $return->{code}, 3, 'timing out is UNKNOWN' );
 like( $return->{stderr}, qr/timed out after 0.5 seconds/, 'and says so' );
 is( alarm(0), 0, 'no alarm left behind' );
+my $started = time;
+$return = $run->(
+	check   => 'testing',
+	args    => [ '--run', $^X, '--run', '-e', '--run', '$SIG{TERM} = "IGNORE"; sleep 30' ],
+	timeout => 0.5
+);
+is( $return->{code}, 3, 'a command that hangs times out' );
+like( $return->{stderr}, qr/timed out after 0.5 seconds/, 'and says so' );
+cmp_ok( time - $started, '<', 10, 'the command was killed, not waited for' );
+is(
+	$run->( check => 'testing', args => [ '--run', $^X, '--run', '-e', '--run', 'print "ran\n"' ] )->{stdout},
+	"exit 0\nran\n",
+	'a command that finishes runs as before'
+);
 
 # stray prints and warnings are caught
 $return = $run->( check => 'testing', args => [ '--print', "printed\n", '--warn', 'warned' ] );

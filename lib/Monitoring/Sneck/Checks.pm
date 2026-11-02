@@ -152,9 +152,10 @@ Checks are not forked, so they are timed out two ways. Each check hands
 its timeout, a second under the one it is run with, to whatever it
 talks to the network through, such as L<LWP::UserAgent> or
 L<Net::DNS::Resolver>. As a backstop, an alarm fires at the timeout it
-is run with, which makes it UNKNOWN. The alarm can not break into
-everything, such as some name lookups in the C library, so the first
-is what is relied on.
+is run with, which makes it UNKNOWN. A command the check is running
+through L<Monitoring::Sneck::Checks::base/run_command> is killed when
+it fires. The alarm can not break into everything, such as some name
+lookups in the C library, so the first is what is relied on.
 
 =head1 METHODS
 

@@ -11,11 +11,11 @@ Monitoring::Sneck::Checks - nagios style checks run as Perl inside of sneck
 
 =head1 VERSION
 
-Version 0.0.2
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.1.0';
 
 # Seconds a check is given if run is not told otherwise.
 our $TIMEOUT = 30;

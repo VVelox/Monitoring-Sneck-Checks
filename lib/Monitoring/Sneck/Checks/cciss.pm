@@ -111,9 +111,8 @@ looking at the vendor. May be given more than once.
 
 - -C, --ignore-cache :: Cache trouble is still said, but is OK.
 
-- -o, --output :: After the status line, include what cciss_vol_status
-printed for each controller that is not OK, after a line of the
-controller and a :.
+- -o, --output :: After the status line, include the output of
+cciss_vol_status for each controller.
 
 - -O, --always-output :: As --output, but for every controller.
 

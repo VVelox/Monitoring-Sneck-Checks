@@ -2,6 +2,7 @@ Revision history for Monitoring-Sneck-Checks
 
 0.1.0
         - cciss: add --ignore-cache, --output, and --always-output
+        - add file_content, linux_ras, and mtime
 
 0.0.2   2026-11-02/17:00
         - tests use t/tmp and t/data, not the system temp directory

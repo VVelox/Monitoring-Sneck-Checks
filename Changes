@@ -1,5 +1,8 @@
 Revision history for Monitoring-Sneck-Checks
 
+0.1.1
+        - local.t: fall back to numeric IDs for file_mode owner/group
+
 0.1.0
         - cciss: add --ignore-cache, --output, and --always-output
         - add file_content, linux_ras, and mtime

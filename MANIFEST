@@ -56,6 +56,7 @@ lib/Monitoring/Sneck/Checks/swraid.pm
 lib/Monitoring/Sneck/Checks/sysctl.pm
 lib/Monitoring/Sneck/Checks/systemd_failed.pm
 lib/Monitoring/Sneck/Checks/tcp.pm
+lib/Monitoring/Sneck/Checks/time_sync.pm
 lib/Monitoring/Sneck/Checks/tls_protocols.pm
 lib/Monitoring/Sneck/Checks/uptime.pm
 lib/Monitoring/Sneck/Checks/zfs.pm
@@ -230,6 +231,18 @@ t/data/sysctl/proc/sys/net/ipv4/ip_forward
 t/data/sysctl/proc/sys/net/ipv4/ip_local_port_range
 t/data/systemd_failed/systemctl
 t/data/systemd_failed/systemctl_down
+t/data/time_sync/chrony_down/exit
+t/data/time_sync/chrony_down/output
+t/data/time_sync/chrony_local/output
+t/data/time_sync/chrony_offset/output
+t/data/time_sync/chrony_ok/output
+t/data/time_sync/chrony_unsynced/output
+t/data/time_sync/daemon
+t/data/time_sync/ntpd_down/output
+t/data/time_sync/ntpd_ok/output
+t/data/time_sync/ntpd_unsynced/output
+t/data/time_sync/timesyncd_off/output
+t/data/time_sync/timesyncd_ok/output
 t/data/uptime/proc/uptime
 t/data/uptime/proc_rebooted/uptime
 t/data/zfs/bad/list
@@ -277,6 +290,7 @@ t/sneck_check.t
 t/system.t
 t/system2.t
 t/system3.t
+t/time_sync.t
 t/tls.t
 t/tls_protocols.t
 t/zfs.t

@@ -156,6 +156,8 @@ The checks that come with it are...
 
 - tcp :: L<Monitoring::Sneck::Checks::tcp>, TCP services.
 
+- time_sync :: L<Monitoring::Sneck::Checks::time_sync>, the local time daemon being synchronised.
+
 - tls_protocols :: L<Monitoring::Sneck::Checks::tls_protocols>, what TLS versions a server takes.
 
 - uptime :: L<Monitoring::Sneck::Checks::uptime>, how long the host has been up.

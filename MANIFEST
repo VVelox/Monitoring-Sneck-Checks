@@ -17,6 +17,7 @@ lib/Monitoring/Sneck/Checks/disk.pm
 lib/Monitoring/Sneck/Checks/dns.pm
 lib/Monitoring/Sneck/Checks/dns_sync.pm
 lib/Monitoring/Sneck/Checks/edac.pm
+lib/Monitoring/Sneck/Checks/fail2ban.pm
 lib/Monitoring/Sneck/Checks/file_age.pm
 lib/Monitoring/Sneck/Checks/file_content.pm
 lib/Monitoring/Sneck/Checks/file_handles.pm
@@ -150,6 +151,17 @@ t/data/edac/ok/mc/mc1/mc_name
 t/data/edac/ok/mc/mc1/size_mb
 t/data/edac/ok/mc/mc1/ue_count
 t/data/edac/ok/mc/mc1/ue_noinfo_count
+t/data/fail2ban/broken/status
+t/data/fail2ban/broken/status.sshd
+t/data/fail2ban/denied/exit
+t/data/fail2ban/denied/status
+t/data/fail2ban/down/exit
+t/data/fail2ban/down/status
+t/data/fail2ban/fail2ban-client
+t/data/fail2ban/none/status
+t/data/fail2ban/ok/status
+t/data/fail2ban/ok/status.postfix-sasl
+t/data/fail2ban/ok/status.sshd
 t/data/file_age/age
 t/data/file_age/db-2026-10-30.sql
 t/data/file_age/db-2026-10-31.sql
@@ -289,6 +301,7 @@ t/data/zfs/zpool
 t/dns.t
 t/edac.t
 t/dns_sync.t
+t/fail2ban.t
 t/files.t
 t/hardening.t
 t/host.t

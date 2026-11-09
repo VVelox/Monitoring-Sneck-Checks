@@ -38,6 +38,7 @@ sneck_check --list-checks
 - dns :: A DNS lookup, its answers, and how long it took.
 - dns_sync :: That a zone's nameservers all answer, are authoritative, and have the same serial.
 - edac :: Corrected and uncorrected memory errors from Linux's EDAC, by DIMM, without rasdaemon.
+- fail2ban :: fail2ban answering, jails that must be running, and how many each has banned now.
 - file_age :: How old and how big a file is.
 - file_content :: A file being there, or not, with lines that must or must not match regexes, and being executable.
 - file_handles :: Open files against the system wide limit.

@@ -78,6 +78,8 @@ The checks that come with it are...
 
 - edac :: L<Monitoring::Sneck::Checks::edac>, memory errors Linux's EDAC has counted.
 
+- fail2ban :: L<Monitoring::Sneck::Checks::fail2ban>, fail2ban's jails up, and how many are banned.
+
 - file_age :: L<Monitoring::Sneck::Checks::file_age>, file age and size.
 
 - file_content :: L<Monitoring::Sneck::Checks::file_content>, a file being there and what is in it.

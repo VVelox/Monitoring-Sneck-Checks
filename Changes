@@ -2,6 +2,7 @@ Revision history for Monitoring-Sneck-Checks
 
 0.2.0   unreleased
         - add edac, memory errors from Linux's EDAC, by DIMM
+        - add mailq, Postfix or Exim queue size and oldest message
         - add smart, disk health through smartctl's JSON output
         - add zfs, pool health, capacity, scrub age, and device errors
 

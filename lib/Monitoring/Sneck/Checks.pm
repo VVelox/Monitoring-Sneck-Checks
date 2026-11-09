@@ -104,6 +104,8 @@ The checks that come with it are...
 
 - log :: L<Monitoring::Sneck::Checks::log>, new lines in a log for a regex.
 
+- mailq :: L<Monitoring::Sneck::Checks::mailq>, the mail queue of Postfix or Exim.
+
 - memory :: L<Monitoring::Sneck::Checks::memory>, how much memory is used.
 
 - mount :: L<Monitoring::Sneck::Checks::mount>, file systems being mounted and writable.

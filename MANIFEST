@@ -30,6 +30,7 @@ lib/Monitoring/Sneck/Checks/linux_ras.pm
 lib/Monitoring/Sneck/Checks/listening.pm
 lib/Monitoring/Sneck/Checks/load.pm
 lib/Monitoring/Sneck/Checks/log.pm
+lib/Monitoring/Sneck/Checks/mailq.pm
 lib/Monitoring/Sneck/Checks/memory.pm
 lib/Monitoring/Sneck/Checks/mount.pm
 lib/Monitoring/Sneck/Checks/mtime.pm
@@ -152,6 +153,16 @@ t/data/kernel_modules/proc/modules
 t/data/linux_ras/ras-mc-ctl
 t/data/linux_ras/ras-mc-ctl_errors
 t/data/linux_ras/ras-mc-ctl_failing
+t/data/mailq/exim_denied/exit
+t/data/mailq/exim_denied/output
+t/data/mailq/exim_queue/output
+t/data/mailq/mta
+t/data/mailq/postfix_down/exit
+t/data/mailq/postfix_down/output
+t/data/mailq/postfix_empty/output
+t/data/mailq/postfix_garbage/output
+t/data/mailq/postfix_old/output
+t/data/mailq/postfix_queue/output
 t/data/mount/fstab
 t/data/mount/fstab.freebsd
 t/data/mount/mount
@@ -249,6 +260,7 @@ t/lib/TestServer.pm
 t/lib/TestTmp.pm
 t/local.t
 t/log.t
+t/mailq.t
 t/manifest.t
 t/mount.t
 t/network.t

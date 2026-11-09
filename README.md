@@ -51,6 +51,7 @@ sneck_check --list-checks
 - listening :: Ports being listened on, and optionally nothing else.
 - load :: The load averages, optionally per CPU.
 - log :: New lines in a log matching a regex, with rotation handled and matches held for a while.
+- mailq :: How many messages Postfix or Exim has queued and how old the oldest is, by queue, frozen included.
 - memory :: How much memory is used, optionally counting the ZFS ARC as available.
 - mount :: That fstab's file systems are mounted, and not gone read only.
 - mtime :: Files changed at, before, or after a time, such as binaries older than a known good build.

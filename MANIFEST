@@ -59,6 +59,7 @@ lib/Monitoring/Sneck/Checks/tcp.pm
 lib/Monitoring/Sneck/Checks/time_sync.pm
 lib/Monitoring/Sneck/Checks/tls_protocols.pm
 lib/Monitoring/Sneck/Checks/uptime.pm
+lib/Monitoring/Sneck/Checks/wireguard.pm
 lib/Monitoring/Sneck/Checks/zfs.pm
 LICENSE
 Makefile.PL
@@ -245,6 +246,12 @@ t/data/time_sync/timesyncd_off/output
 t/data/time_sync/timesyncd_ok/output
 t/data/uptime/proc/uptime
 t/data/uptime/proc_rebooted/uptime
+t/data/wireguard/denied/exit
+t/data/wireguard/denied/output
+t/data/wireguard/none/output
+t/data/wireguard/ok/output
+t/data/wireguard/stale/output
+t/data/wireguard/wg
 t/data/zfs/bad/list
 t/data/zfs/bad/status
 t/data/zfs/failing/exit
@@ -293,4 +300,5 @@ t/system3.t
 t/time_sync.t
 t/tls.t
 t/tls_protocols.t
+t/wireguard.t
 t/zfs.t

@@ -162,6 +162,8 @@ The checks that come with it are...
 
 - uptime :: L<Monitoring::Sneck::Checks::uptime>, how long the host has been up.
 
+- wireguard :: L<Monitoring::Sneck::Checks::wireguard>, WireGuard peers having handshaken recently.
+
 - zfs :: L<Monitoring::Sneck::Checks::zfs>, ZFS pools, health, capacity, scrubs, and device errors.
 
 =head1 TIMEOUTS

@@ -80,6 +80,7 @@ sneck_check --list-checks
 - time_sync :: The local time daemon, chrony, ntpd, or timesyncd, being synchronised, its offset, and when it last updated.
 - tls_protocols :: What TLS versions a server takes, such as it refusing TLS 1.0 and 1.1, STARTTLS included.
 - uptime :: How long the host has been up, catching reboots no one planned.
+- wireguard :: How long since each WireGuard peer last handshook, optionally only those with persistent keepalive.
 - zfs :: ZFS pools, health, capacity, fragmentation, scrub age, resilvers, device errors, and data errors.
 
 Those that look at the host, such as disk, interface, listening, and

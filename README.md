@@ -49,6 +49,7 @@ sneck_check --list-checks
 - interface :: Network interfaces being up, at speed and full duplex, with the right MTU, and errors and drops per second.
 - jails :: FreeBSD jails running, every one in jail.conf if wanted, and vm-bhyve VMs.
 - kernel_modules :: Kernel modules loaded or not, and kept from loading through modprobe.d, as CIS wants.
+- ldap :: A LDAP server binding, anonymously or as a DN, and searching, over LDAPS or StartTLS, with response time. Needs Net::LDAP.
 - linux_ras :: Hardware errors rasdaemon has logged, memory, PCIe, and machine checks.
 - listening :: Ports being listened on, and optionally nothing else.
 - load :: The load averages, optionally per CPU.
@@ -129,6 +130,12 @@ pkg install p5-libwww p5-LWP-Protocol-https p5-HTTP-Message p5-Net-DNS p5-Net-IP
     p5-Proc-ProcessTable p5-BSD-Sysctl
 ```
 
+For the ldap check, which is optional.
+
+```
+pkg install p5-perl-ldap
+```
+
 Then install from source as above.
 
 ### Debian
@@ -138,6 +145,12 @@ apt-get install libwww-perl liblwp-protocol-https-perl libhttp-message-perl libn
     libnet-ip-perl libdata-validate-domain-perl libdata-validate-ip-perl libfile-slurp-perl \
     libxml-libxml-perl libio-socket-ssl-perl libnet-ssleay-perl libjson-perl libjson-xs-perl libfilesys-df-perl \
     libproc-processtable-perl
+```
+
+For the ldap check, which is optional.
+
+```
+apt-get install libnet-ldap-perl
 ```
 
 Then install from source as above.

@@ -100,6 +100,8 @@ The checks that come with it are...
 
 - kernel_modules :: L<Monitoring::Sneck::Checks::kernel_modules>, kernel modules being loaded or not.
 
+- ldap :: L<Monitoring::Sneck::Checks::ldap>, a LDAP server binding and searching, needing L<Net::LDAP>.
+
 - linux_ras :: L<Monitoring::Sneck::Checks::linux_ras>, hardware errors rasdaemon has logged.
 
 - listening :: L<Monitoring::Sneck::Checks::listening>, what ports are listened on.

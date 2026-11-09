@@ -4,6 +4,7 @@ Revision history for Monitoring-Sneck-Checks
         - add apparmor, AppArmor enabled with profiles enforcing
         - add auditd, auditing on, with the rules matching a list or a hash
         - add edac, memory errors from Linux's EDAC, by DIMM
+        - add ldap, bind and search with response time, through Net::LDAP, which is optional
         - add mailq, Postfix or Exim queue size and oldest message
         - add selinux, SELinux in the mode it should be
         - add smart, disk health through smartctl's JSON output

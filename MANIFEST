@@ -28,6 +28,7 @@ lib/Monitoring/Sneck/Checks/https_cert.pm
 lib/Monitoring/Sneck/Checks/interface.pm
 lib/Monitoring/Sneck/Checks/jails.pm
 lib/Monitoring/Sneck/Checks/kernel_modules.pm
+lib/Monitoring/Sneck/Checks/ldap.pm
 lib/Monitoring/Sneck/Checks/linux_ras.pm
 lib/Monitoring/Sneck/Checks/listening.pm
 lib/Monitoring/Sneck/Checks/load.pm
@@ -168,6 +169,7 @@ t/data/kernel_modules/kldstat
 t/data/kernel_modules/modprobe.d/cis.conf
 t/data/kernel_modules/modules/6.12.48/modules.builtin
 t/data/kernel_modules/proc/modules
+t/data/ldap/password
 t/data/linux_ras/ras-mc-ctl
 t/data/linux_ras/ras-mc-ctl_errors
 t/data/linux_ras/ras-mc-ctl_failing
@@ -299,6 +301,7 @@ t/lib/Monitoring/Sneck/Checks/testing.pm
 t/lib/TestCerts.pm
 t/lib/TestServer.pm
 t/lib/TestTmp.pm
+t/ldap.t
 t/local.t
 t/log.t
 t/mailq.t

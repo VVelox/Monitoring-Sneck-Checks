@@ -1,8 +1,11 @@
 Revision history for Monitoring-Sneck-Checks
 
 0.2.0   unreleased
+        - add apparmor, AppArmor enabled with profiles enforcing
+        - add auditd, auditing on, with the rules matching a list or a hash
         - add edac, memory errors from Linux's EDAC, by DIMM
         - add mailq, Postfix or Exim queue size and oldest message
+        - add selinux, SELinux in the mode it should be
         - add smart, disk health through smartctl's JSON output
         - add time_sync, chrony, ntpd, or timesyncd being synchronised, with offset
         - add wireguard, how long since each peer last handshook

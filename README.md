@@ -24,6 +24,8 @@ sneck_check --list-checks
 ## Checks
 
 - accounts :: UID 0, empty passwords, duplicates, system accounts with login shells, and accounts that must or must not be there.
+- apparmor :: AppArmor enabled, profiles that must be enforcing, and those left in complain mode.
+- auditd :: auditd running, auditing enabled and optionally immutable, and the loaded rules matching a list or a SHA-256 hash.
 - cciss :: HP Smart Array controllers through cciss_vol_status, volumes, drives, spares, enclosures, and cache.
 - cert_dir :: Every certificate in directories, without naming each file.
 - cert_file :: Certificate files, every certificate in each, plus the key and names.
@@ -67,6 +69,7 @@ sneck_check --list-checks
 - rbl :: If a host is on DNS block lists.
 - reboot_needed :: Updates waiting on a reboot, and processes still using replaced libraries.
 - resolv :: /etc/resolv.conf, and that its nameservers answer.
+- selinux :: SELinux running in the wanted mode, and the config not set to change it at the next boot.
 - sensors :: Temperatures, fans, and voltages from hwmon, without lm-sensors, or FreeBSD's temperatures.
 - service :: Services running, and optionally enabled, through systemd or service, jails included.
 - smart :: Disk health through smartctl, SMART status, bad sectors, NVMe critical warnings and media errors, wear, temperature, and self tests.

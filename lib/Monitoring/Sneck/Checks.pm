@@ -50,6 +50,10 @@ The checks that come with it are...
 
 - accounts :: L<Monitoring::Sneck::Checks::accounts>, local user accounts.
 
+- apparmor :: L<Monitoring::Sneck::Checks::apparmor>, AppArmor enabled with its profiles enforcing.
+
+- auditd :: L<Monitoring::Sneck::Checks::auditd>, Linux auditing on with the rules it should have.
+
 - cciss :: L<Monitoring::Sneck::Checks::cciss>, HP Smart Array controllers, through cciss_vol_status.
 
 - cert_dir :: L<Monitoring::Sneck::Checks::cert_dir>, every certificate in directories.
@@ -135,6 +139,8 @@ The checks that come with it are...
 - reboot_needed :: L<Monitoring::Sneck::Checks::reboot_needed>, a reboot or restarts being needed after updates.
 
 - resolv :: L<Monitoring::Sneck::Checks::resolv>, /etc/resolv.conf.
+
+- selinux :: L<Monitoring::Sneck::Checks::selinux>, SELinux in the mode it should be.
 
 - sensors :: L<Monitoring::Sneck::Checks::sensors>, temperatures, fans, and voltages.
 

@@ -2,6 +2,8 @@
 Changes
 lib/Monitoring/Sneck/Checks.pm
 lib/Monitoring/Sneck/Checks/accounts.pm
+lib/Monitoring/Sneck/Checks/apparmor.pm
+lib/Monitoring/Sneck/Checks/auditd.pm
 lib/Monitoring/Sneck/Checks/base.pm
 lib/Monitoring/Sneck/Checks/cciss.pm
 lib/Monitoring/Sneck/Checks/cert_dir.pm
@@ -46,6 +48,7 @@ lib/Monitoring/Sneck/Checks/procs.pm
 lib/Monitoring/Sneck/Checks/rbl.pm
 lib/Monitoring/Sneck/Checks/reboot_needed.pm
 lib/Monitoring/Sneck/Checks/resolv.pm
+lib/Monitoring/Sneck/Checks/selinux.pm
 lib/Monitoring/Sneck/Checks/sensors.pm
 lib/Monitoring/Sneck/Checks/service.pm
 lib/Monitoring/Sneck/Checks/smart.pm
@@ -81,6 +84,19 @@ t/data/accounts/passwd_root
 t/data/accounts/shadow
 t/data/accounts/shadow_bad
 t/data/accounts/shells
+t/data/apparmor/disabled
+t/data/apparmor/enabled
+t/data/apparmor/profiles
+t/data/auditd/auditctl
+t/data/auditd/denied/exit
+t/data/auditd/denied/status
+t/data/auditd/locked/rules
+t/data/auditd/locked/status
+t/data/auditd/ok/rules
+t/data/auditd/ok/status
+t/data/auditd/rules.wanted
+t/data/auditd/stopped/rules
+t/data/auditd/stopped/status
 t/data/cert_file/garbage.pem
 t/data/config_value/login.defs
 t/data/config_value/rc.conf
@@ -198,6 +214,11 @@ t/data/reboot_needed/status_newer
 t/data/resolv/bad.conf
 t/data/resolv/many.conf
 t/data/resolv/resolv.conf
+t/data/selinux/disabled/config
+t/data/selinux/enforcing/config
+t/data/selinux/enforcing/selinuxfs/enforce
+t/data/selinux/permissive/config
+t/data/selinux/permissive/selinuxfs/enforce
 t/data/service/service
 t/data/service/systemctl
 t/data/service/systemctl_not_enabled
@@ -291,6 +312,7 @@ t/pod.t
 t/rbl.t
 t/reboot_needed.t
 t/run.t
+t/security.t
 t/sensors.t
 t/smart.t
 t/sneck_check.t

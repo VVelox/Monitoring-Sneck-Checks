@@ -57,6 +57,7 @@ lib/Monitoring/Sneck/Checks/systemd_failed.pm
 lib/Monitoring/Sneck/Checks/tcp.pm
 lib/Monitoring/Sneck/Checks/tls_protocols.pm
 lib/Monitoring/Sneck/Checks/uptime.pm
+lib/Monitoring/Sneck/Checks/zfs.pm
 LICENSE
 Makefile.PL
 MANIFEST			This list of files
@@ -220,6 +221,17 @@ t/data/systemd_failed/systemctl
 t/data/systemd_failed/systemctl_down
 t/data/uptime/proc/uptime
 t/data/uptime/proc_rebooted/uptime
+t/data/zfs/bad/list
+t/data/zfs/bad/status
+t/data/zfs/failing/exit
+t/data/zfs/failing/list
+t/data/zfs/none/list
+t/data/zfs/none/status
+t/data/zfs/ok/list
+t/data/zfs/ok/status
+t/data/zfs/old/list
+t/data/zfs/old/status
+t/data/zfs/zpool
 t/dns.t
 t/edac.t
 t/dns_sync.t
@@ -255,3 +267,4 @@ t/system2.t
 t/system3.t
 t/tls.t
 t/tls_protocols.t
+t/zfs.t

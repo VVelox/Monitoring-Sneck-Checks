@@ -158,6 +158,8 @@ The checks that come with it are...
 
 - uptime :: L<Monitoring::Sneck::Checks::uptime>, how long the host has been up.
 
+- zfs :: L<Monitoring::Sneck::Checks::zfs>, ZFS pools, health, capacity, scrubs, and device errors.
+
 =head1 TIMEOUTS
 
 Checks are not forked, so they are timed out two ways. Each check hands

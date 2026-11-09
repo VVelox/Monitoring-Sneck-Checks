@@ -78,6 +78,7 @@ sneck_check --list-checks
 - tcp :: A TCP service, optionally over TLS, with send and expect.
 - tls_protocols :: What TLS versions a server takes, such as it refusing TLS 1.0 and 1.1, STARTTLS included.
 - uptime :: How long the host has been up, catching reboots no one planned.
+- zfs :: ZFS pools, health, capacity, fragmentation, scrub age, resilvers, device errors, and data errors.
 
 Those that look at the host, such as disk, interface, listening, and
 sysctl, work on Linux and FreeBSD, except neighbors, oom, pressure,

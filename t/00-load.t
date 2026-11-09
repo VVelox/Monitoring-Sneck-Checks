@@ -14,7 +14,7 @@ my @modules = map { 'Monitoring::Sneck::Checks::' . $_ } (
 	'pid_file',       'ping',      'pkg_audit',  'pressure',       'procs',        'reboot_needed',
 	'resolv',         'sensors',   'service',    'smart',          'smtp',         'sshd_config',
 	'swap',           'swraid',    'sysctl',     'systemd_failed', 'tcp',          'tls_protocols',
-	'uptime'
+	'uptime',         'zfs'
 );
 push( @modules, 'Monitoring::Sneck::Checks::rbl' ) if eval { require Net::IP; 1 };
 foreach my $module ( 'Monitoring::Sneck::Checks', @modules ) {

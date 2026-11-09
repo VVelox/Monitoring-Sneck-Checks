@@ -1,7 +1,9 @@
 Revision history for Monitoring-Sneck-Checks
 
 0.2.0   unreleased
-        - add edac and smart
+        - add edac, memory errors from Linux's EDAC, by DIMM
+        - add smart, disk health through smartctl's JSON output
+        - add zfs, pool health, capacity, scrub age, and device errors
 
 0.1.1   2026-11-06/12:30
         - local.t: fall back to numeric IDs for file_mode owner/group

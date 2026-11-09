@@ -1,5 +1,8 @@
 Revision history for Monitoring-Sneck-Checks
 
+0.2.0   unreleased
+        - add smart
+
 0.1.1   2026-11-06/12:30
         - local.t: fall back to numeric IDs for file_mode owner/group
 

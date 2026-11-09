@@ -67,6 +67,7 @@ sneck_check --list-checks
 - resolv :: /etc/resolv.conf, and that its nameservers answer.
 - sensors :: Temperatures, fans, and voltages from hwmon, without lm-sensors, or FreeBSD's temperatures.
 - service :: Services running, and optionally enabled, through systemd or service, jails included.
+- smart :: Disk health through smartctl, SMART status, bad sectors, NVMe critical warnings and media errors, wear, temperature, and self tests.
 - smtp :: A SMTP server, its greeting, EHLO extensions, STARTTLS, and response time.
 - sshd_config :: Settings in sshd_config, read the way sshd does.
 - swap :: How much swap is used, across every device.

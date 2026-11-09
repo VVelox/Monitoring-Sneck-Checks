@@ -72,6 +72,8 @@ The checks that come with it are...
 
 - dns_sync :: L<Monitoring::Sneck::Checks::dns_sync>, a zone's nameservers having the same serial.
 
+- edac :: L<Monitoring::Sneck::Checks::edac>, memory errors Linux's EDAC has counted.
+
 - file_age :: L<Monitoring::Sneck::Checks::file_age>, file age and size.
 
 - file_content :: L<Monitoring::Sneck::Checks::file_content>, a file being there and what is in it.

@@ -1,6 +1,6 @@
 Revision history for Monitoring-Sneck-Checks
 
-0.2.0   unreleased
+0.2.0   20226-11-11/08:15
         - add apparmor, AppArmor enabled with profiles enforcing
         - add auditd, auditing on, with the rules matching a list or a hash
         - add bond, Linux bonding and FreeBSD lagg members down or not aggregating

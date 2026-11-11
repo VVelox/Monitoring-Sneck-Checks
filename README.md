@@ -26,6 +26,7 @@ sneck_check --list-checks
 - accounts :: UID 0, empty passwords, duplicates, system accounts with login shells, and accounts that must or must not be there.
 - apparmor :: AppArmor enabled, profiles that must be enforcing, and those left in complain mode.
 - auditd :: auditd running, auditing enabled and optionally immutable, and the loaded rules matching a list or a SHA-256 hash.
+- bond :: Link aggregation, bonding on Linux and lagg on FreeBSD, members down or not aggregating, and the bond itself.
 - cciss :: HP Smart Array controllers through cciss_vol_status, volumes, drives, spares, enclosures, and cache.
 - cert_dir :: Every certificate in directories, without naming each file.
 - cert_file :: Certificate files, every certificate in each, plus the key and names.
@@ -86,6 +87,7 @@ sneck_check --list-checks
 - time_sync :: The local time daemon, chrony, ntpd, or timesyncd, being synchronised, its offset, and when it last updated.
 - tls_protocols :: What TLS versions a server takes, such as it refusing TLS 1.0 and 1.1, STARTTLS included.
 - uptime :: How long the host has been up, catching reboots no one planned.
+- vrrp :: keepalived VRRP instances, freevrrpd VRIDs, or CARP vhids on FreeBSD, being MASTER or BACKUP as they should, and not in FAULT.
 - wireguard :: How long since each WireGuard peer last handshook, optionally only those with persistent keepalive.
 - zfs :: ZFS pools, health, capacity, fragmentation, scrub age, resilvers, device errors, and data errors.
 

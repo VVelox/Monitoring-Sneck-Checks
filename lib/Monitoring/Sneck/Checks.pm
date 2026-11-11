@@ -54,6 +54,8 @@ The checks that come with it are...
 
 - auditd :: L<Monitoring::Sneck::Checks::auditd>, Linux auditing on with the rules it should have.
 
+- bond :: L<Monitoring::Sneck::Checks::bond>, link aggregation, bonding on Linux and lagg on FreeBSD.
+
 - cciss :: L<Monitoring::Sneck::Checks::cciss>, HP Smart Array controllers, through cciss_vol_status.
 
 - cert_dir :: L<Monitoring::Sneck::Checks::cert_dir>, every certificate in directories.
@@ -173,6 +175,8 @@ The checks that come with it are...
 - tls_protocols :: L<Monitoring::Sneck::Checks::tls_protocols>, what TLS versions a server takes.
 
 - uptime :: L<Monitoring::Sneck::Checks::uptime>, how long the host has been up.
+
+- vrrp :: L<Monitoring::Sneck::Checks::vrrp>, keepalived, freevrrpd, or FreeBSD's CARP being MASTER or BACKUP as it should.
 
 - wireguard :: L<Monitoring::Sneck::Checks::wireguard>, WireGuard peers having handshaken recently.
 

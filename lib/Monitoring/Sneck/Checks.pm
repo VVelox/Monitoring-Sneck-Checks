@@ -166,6 +166,8 @@ The checks that come with it are...
 
 - tcp :: L<Monitoring::Sneck::Checks::tcp>, TCP services.
 
+- thermal_throttle :: L<Monitoring::Sneck::Checks::thermal_throttle>, CPUs being thermally throttled.
+
 - time_sync :: L<Monitoring::Sneck::Checks::time_sync>, the local time daemon being synchronised.
 
 - tls_protocols :: L<Monitoring::Sneck::Checks::tls_protocols>, what TLS versions a server takes.

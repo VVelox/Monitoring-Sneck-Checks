@@ -9,6 +9,7 @@ Revision history for Monitoring-Sneck-Checks
         - add mailq, Postfix or Exim queue size and oldest message
         - add selinux, SELinux in the mode it should be
         - add smart, disk health through smartctl's JSON output
+        - add thermal_throttle, Intel CPU thermal throttle events since the last run
         - add time_sync, chrony, ntpd, or timesyncd being synchronised, with offset
         - add wireguard, how long since each peer last handshook
         - add zfs, pool health, capacity, scrub age, and device errors

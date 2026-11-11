@@ -82,6 +82,7 @@ sneck_check --list-checks
 - sysctl :: Sysctl values, with =, !=, <, <=, >, and >=.
 - systemd_failed :: Failed systemd units.
 - tcp :: A TCP service, optionally over TLS, with send and expect.
+- thermal_throttle :: Intel CPU thermal throttle events since the last run, for cores and packages, and the time throttled.
 - time_sync :: The local time daemon, chrony, ntpd, or timesyncd, being synchronised, its offset, and when it last updated.
 - tls_protocols :: What TLS versions a server takes, such as it refusing TLS 1.0 and 1.1, STARTTLS included.
 - uptime :: How long the host has been up, catching reboots no one planned.
